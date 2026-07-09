@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Heater;
 use App\Models\HeaterLog;
+use App\Models\Setting;
 use App\Services\TelegramService;
 
 class HeaterService
@@ -21,10 +22,25 @@ class HeaterService
 
         $previousStatus = $heater->latestLog ? $heater->latestLog->status : 'NORMAL';
 
-        // Tentukan status
-        if ($data['current'] >= 8) {
+        $settings = Setting::first() ?: Setting::create([
+            'normal_min' => 9.00,
+            'warning_min' => 7.60,
+            'm_ct1' => 2.681,
+            'm_ct2' => 2.480,
+            'm_ct3' => 3.013,
+            'm_ct4' => 3.171,
+            'm_ct5' => 3.199,
+            'm_ct6' => 2.989,
+            'upper_baseline' => 10.939,
+            'lower_baseline' => 10.939,
+            'telegram_enabled' => true,
+            'sampling_interval' => 5
+        ]);
+
+        // Tentukan status berdasarkan setingan dinamis db
+        if ($data['current'] >= $settings->normal_min) {
             $status = 'NORMAL';
-        } elseif ($data['current'] >= 5) {
+        } elseif ($data['current'] >= $settings->warning_min) {
             $status = 'WARNING';
         } else {
             $status = 'DANGER';
@@ -46,8 +62,8 @@ class HeaterService
                 $telegramService = app(TelegramService::class);
                 $icon = $status === 'DANGER' ? '🚨 DANGER' : '⚠️ WARNING';
                 $actionMsg = $status === 'DANGER' 
-                    ? '<b>PERHATIAN Kritis:</b> Unit Heater perlu SEGERA DIGANTI (Ganti Heater)!' 
-                    : '<b>PERINGATAN:</b> Arus heater di bawah ambang normal. Lakukan inspeksi.';
+                    ? "<b>PERHATIAN Kritis:</b> Unit Heater perlu SEGERA DIGANTI (Arus di bawah {$settings->warning_min} A)!" 
+                    : "<b>PERINGATAN:</b> Arus heater di bawah ambang normal. Lakukan inspeksi (Arus di bawah {$settings->normal_min} A).";
                 
                 $msg = "{$icon} <b>DETEKSI SENSOR: STATUS {$status}</b>\n\n"
                      . "Kode Heater: <b>{$heater->heater_code}</b> ({$heater->heater_name})\n"
@@ -73,7 +89,7 @@ class HeaterService
 
     public function getDetailHeater($heater_code)
     {
-
+        // Detail heater placeholder/action
     }
 
     public function getChartData(\Illuminate\Http\Request $request)

@@ -87,7 +87,7 @@
                                                 <button
                                                     class="btn btn-sm btn-danger rounded-pill px-3 font-weight-bold shadow-sm btn-ganti-heater"
                                                     data-id="{{ $dh->id }}" data-code="{{ $dh->heater_code }}"
-                                                    data-name="{{ $dh->heater_name }}" data-toggle="modal"
+                                                    data-name="{{ $dh->heater_name }}" data-zone="{{ $dh->zone }}" data-toggle="modal"
                                                     data-target="#modalReplaceHeater">
                                                     <i class="fas fa-tools mr-1"></i> Ganti Heater Ini
                                                 </button>
@@ -157,10 +157,10 @@
     <div class="modal fade" id="modalReplaceHeater" tabindex="-1" role="dialog" aria-labelledby="modalReplaceHeaterLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content rounded-lg border-0 shadow-lg">
-                <div class="modal-header bg-primary text-white py-3">
-                    <h5 class="modal-title font-weight-bold mb-0" id="modalReplaceHeaterLabel"><i
-                            class="fas fa-tools mr-2"></i> Form Proses Penggantian Heater</h5>
+            <div class="modal-content rounded-lg border-0 shadow-lg" style="max-height: 95vh; overflow-y: auto;">
+                <div class="modal-header bg-primary text-white py-2 px-3">
+                    <h6 class="modal-title font-weight-bold mb-0" id="modalReplaceHeaterLabel"><i
+                            class="fas fa-tools mr-2"></i> Form Proses Penggantian Heater</h6>
                     <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -168,41 +168,50 @@
                 <form action="{{ route('replacement.store') }}" method="POST">
                     @csrf
                     <div class="modal-body p-3">
-                        <div class="form-group mb-3">
+                        <div class="form-group mb-2">
                             <label class="font-weight-bold text-muted small mb-1">Pilih Heater Yang Diganti</label>
-                            <select name="heater_id" id="modal_heater_id" class="form-control rounded-pill" required>
+                            <select name="heater_id" id="modal_heater_id" class="form-control form-control-sm rounded-pill" required>
                                 <option value="">-- Pilih Heater --</option>
                                 @foreach ($allHeaters as $h)
-                                    <option value="{{ $h->id }}" data-code="{{ $h->heater_code }}">
+                                    <option value="{{ $h->id }}" data-code="{{ $h->heater_code }}" data-name="{{ $h->heater_name }}" data-zone="{{ $h->zone }}">
                                         {{ $h->heater_code }} - {{ $h->heater_name }} ({{ $h->zone }})
                                     </option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label class="font-weight-bold text-muted small mb-1">Teknisi / Penanggung Jawab</label>
-                            <input type="text" name="replaced_by" class="form-control rounded-pill"
-                                placeholder="Masukkan nama teknisi / penanggung jawab" required>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label class="font-weight-bold text-muted small mb-1">Alasan Penggantian</label>
-                            <input type="text" name="reason" class="form-control rounded-pill"
-                                placeholder="Masukkan alasan penggantian..." required>
+                        <div class="form-group mb-2">
+                            <label class="font-weight-bold text-muted small mb-1">Unit / Posisi Heater Yang Diganti</label>
+                            <select name="replaced_unit" id="modal_replaced_unit" class="form-control form-control-sm rounded-pill" required>
+                                <option value="Heater 1">Heater 1</option>
+                                <option value="Heater 2">Heater 2</option>
+                                <option value="Kedua Heater (Heater 1 & 2)">Kedua Heater (Heater 1 & 2)</option>
+                            </select>
                         </div>
 
                         <div class="form-group mb-2">
+                            <label class="font-weight-bold text-muted small mb-1">Teknisi / Penanggung Jawab</label>
+                            <input type="text" name="replaced_by" class="form-control form-control-sm rounded-pill"
+                                placeholder="Masukkan nama teknisi" required>
+                        </div>
+
+                        <div class="form-group mb-2">
+                            <label class="font-weight-bold text-muted small mb-1">Alasan Penggantian</label>
+                            <input type="text" name="reason" class="form-control form-control-sm rounded-pill"
+                                placeholder="Masukkan alasan penggantian..." required>
+                        </div>
+
+                        <div class="form-group mb-1">
                             <label class="font-weight-bold text-muted small mb-1">Catatan Tambahan</label>
-                            <textarea name="notes" class="form-control rounded-lg" rows="2"
-                                placeholder="Deskripsi perbaikan/tipe sparepart baru yang dipasang..."></textarea>
+                            <textarea name="notes" class="form-control rounded-lg" rows="1"
+                                placeholder="Deskripsi perbaikan/tipe sparepart baru..."></textarea>
                         </div>
                     </div>
 
-                    <div class="modal-footer bg-light border-0 py-2">
-                        <button type="button" class="btn btn-secondary rounded-pill px-4"
+                    <div class="modal-footer bg-light border-0 py-2 px-3">
+                        <button type="button" class="btn btn-sm btn-secondary rounded-pill px-3"
                             data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary rounded-pill px-4 font-weight-bold">
+                        <button type="submit" class="btn btn-sm btn-primary rounded-pill px-4 font-weight-bold">
                             <i class="fas fa-check mr-1"></i> Simpan & Reset Status ke NORMAL
                         </button>
                     </div>
@@ -297,14 +306,51 @@
 @section('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            function updateReplacedUnitOptions(selectElement, targetDropdownId) {
+                const selectedOption = $(selectElement).find('option:selected');
+                const rawName = selectedOption.data('name') || '';
+                const zone = selectedOption.data('zone') || '';
+                
+                // Clean the name (remove "CTXX - ")
+                const cleanName = rawName.replace(/^CT\d+\s*-\s*/i, '');
+                
+                const dropdown = $(targetDropdownId);
+                dropdown.empty();
+                
+                if (cleanName && zone) {
+                    dropdown.append(`<option value="Heater 1 (${cleanName})">Heater 1 (${cleanName})</option>`);
+                    dropdown.append(`<option value="Heater 2 (${zone})">Heater 2 (${zone})</option>`);
+                    dropdown.append(`<option value="Kedua Heater (Heater 1 & 2)">Kedua Heater (Heater 1 & 2)</option>`);
+                } else {
+                    dropdown.append(`<option value="Heater 1">Heater 1</option>`);
+                    dropdown.append(`<option value="Heater 2">Heater 2</option>`);
+                    dropdown.append(`<option value="Kedua Heater (Heater 1 & 2)">Kedua Heater (Heater 1 & 2)</option>`);
+                }
+            }
+
+            // Form Ganti Heater modal handler
             $('#modalReplaceHeater').on('show.bs.modal', function(event) {
                 const button = $(event.relatedTarget);
                 const id = button.data('id');
+                const name = button.data('name') || '';
+                const zone = button.data('zone') || '';
+
                 if (id) {
                     $('#modal_heater_id').val(id);
+                    // Ensure attributes are set/updated on the target option
+                    const opt = $('#modal_heater_id').find(`option[value="${id}"]`);
+                    if (name) opt.attr('data-name', name).data('name', name);
+                    if (zone) opt.attr('data-zone', zone).data('zone', zone);
+                    
+                    updateReplacedUnitOptions($('#modal_heater_id')[0], '#modal_replaced_unit');
                 } else {
                     $('#modal_heater_id').val('');
+                    $('#modal_replaced_unit').empty().append('<option value="">-- Pilih Heater Terlebih Dahulu --</option>');
                 }
+            });
+
+            $('#modal_heater_id').on('change', function() {
+                updateReplacedUnitOptions(this, '#modal_replaced_unit');
             });
 
             const btnConfirmRep = document.getElementById('btnConfirmReplacementDownload');

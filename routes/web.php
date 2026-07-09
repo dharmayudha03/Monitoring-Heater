@@ -55,6 +55,8 @@ Route::middleware(['auth'])->group(function () {
         // Settings
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+        Route::post('/settings/system', [SettingController::class, 'updateSystem'])->name('settings.system.update');
+        Route::post('/settings/calibrate', [SettingController::class, 'calibrateSensor'])->name('settings.calibrate');
 
         // SUPER ADMIN ONLY: User & Password Management
         Route::middleware([\App\Http\Middleware\SuperAdminMiddleware::class])->group(function () {

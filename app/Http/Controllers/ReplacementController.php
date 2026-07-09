@@ -28,6 +28,7 @@ class ReplacementController extends Controller
     {
         $request->validate([
             'heater_id' => 'required|exists:heaters,id',
+            'replaced_unit' => 'required|string|in:Heater 1,Heater 2,Kedua Heater (Heater 1 & 2)',
             'reason' => 'nullable|string',
             'replaced_by' => 'required|string',
             'notes' => 'nullable|string',
@@ -37,6 +38,11 @@ class ReplacementController extends Controller
         $oldCode = $request->input('old_heater_code', $heater->heater_code . '-OLD');
         $newCode = $request->input('new_heater_code', $heater->heater_code);
 
+        $notes = "Unit Diganti: " . $request->replaced_unit;
+        if ($request->notes) {
+            $notes .= " | " . $request->notes;
+        }
+
         $replacement = Replacement::create([
             'heater_id' => $heater->id,
             'old_heater_code' => $oldCode,
@@ -44,7 +50,7 @@ class ReplacementController extends Controller
             'reason' => $request->reason ?? 'Status DANGER - Penggantian Unit Heater',
             'replaced_by' => $request->replaced_by,
             'replacement_date' => Carbon::now(),
-            'notes' => $request->notes,
+            'notes' => $notes,
         ]);
 
         if ($newCode !== $heater->heater_code) {
@@ -64,12 +70,12 @@ class ReplacementController extends Controller
         // Send Telegram Notification
         try {
             $telegramService = app(TelegramService::class);
-            $msg = "🛠️ <b>PENGGANTIAN HEATER SUKSES</b>\n\nKode Heater: <b>{$heater->heater_code}</b>\nTeknisi: {$request->replaced_by}\nAlasan: " . ($request->reason ?: 'Penggantian Elemen Heater') . "\nStatus: NORMAL (10.93 A)";
+            $msg = "🛠️ <b>PENGGANTIAN HEATER SUKSES</b>\n\nKode Heater: <b>{$heater->heater_code}</b>\nUnit Diganti: <b>{$request->replaced_unit}</b>\nTeknisi: {$request->replaced_by}\nAlasan: " . ($request->reason ?: 'Penggantian Elemen Heater') . "\nStatus: NORMAL (10.93 A)";
             $telegramService->sendMessage($msg, $heater->id);
         } catch (\Exception $e) {
         }
 
-        return redirect()->back()->with('success', "Heater {$heater->heater_code} berhasil diganti dan status dikembalikan ke NORMAL!");
+        return redirect()->back()->with('success', "Heater {$heater->heater_code} ({$request->replaced_unit}) berhasil diganti dan status dikembalikan ke NORMAL!");
     }
 
     public function exportExcel(Request $request)

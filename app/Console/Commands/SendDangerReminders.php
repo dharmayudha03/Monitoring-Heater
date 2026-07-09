@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Heater;
 use App\Models\HeaterLog;
+use App\Models\Setting;
 use App\Services\TelegramService;
 use Carbon\Carbon;
 
@@ -26,6 +27,21 @@ class SendDangerReminders extends Command
             $this->info('Tidak ada heater dengan status DANGER / WARNING saat ini.');
             return 0;
         }
+
+        $settings = Setting::first() ?: Setting::create([
+            'normal_min' => 9.00,
+            'warning_min' => 7.60,
+            'm_ct1' => 2.681,
+            'm_ct2' => 2.480,
+            'm_ct3' => 3.013,
+            'm_ct4' => 3.171,
+            'm_ct5' => 3.199,
+            'm_ct6' => 2.989,
+            'upper_baseline' => 10.939,
+            'lower_baseline' => 10.939,
+            'telegram_enabled' => true,
+            'sampling_interval' => 5
+        ]);
 
         $count = 0;
         foreach ($dangerHeaters as $heater) {
@@ -60,8 +76,8 @@ class SendDangerReminders extends Command
 
             $statusIcon = $log->status === 'DANGER' ? '🚨 DANGER' : '⚠️ WARNING';
             $actionTip = $log->status === 'DANGER' 
-                ? 'Arus terdegradasi parah di bawah 5A! Unit Heater PERLU SEGERA DIGANTI.' 
-                : 'Arus di bawah ambang normal (8.5A). Mohon lakukan inspeksi unit.';
+                ? "Arus terdegradasi parah di bawah {$settings->warning_min}A! Unit Heater PERLU SEGERA DIGANTI." 
+                : "Arus di bawah ambang normal ({$settings->normal_min}A). Mohon lakukan inspeksi unit.";
 
             $msg = "{$statusIcon} <b>REMINDER MAINTENANCE (30 MENIT)</b>\n\n"
                 . "Kode Heater: <b>{$heater->heater_code}</b> ({$heater->heater_name})\n"

@@ -37,13 +37,30 @@ class HeaterController extends Controller
         );
     }
 
+    public function bulkStore(\Illuminate\Http\Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'logs' => 'required|array',
+            'logs.*.heater_code' => 'required|string',
+            'logs.*.current' => 'required|numeric|min:0',
+            'logs.*.voltage' => 'nullable|numeric',
+            'logs.*.temperature' => 'nullable|numeric',
+            'logs.*.adc_value' => 'nullable|integer',
+        ]);
+
+        $results = [];
+        foreach ($data['logs'] as $logData) {
+            $results[] = $this->heaterService->store($logData);
+        }
+
+        return ApiResponse::success(
+            $results,
+            'Data bulk berhasil disimpan'
+        );
+    }
+
     public function getAll()
     {
-        // Auto-sync live ESP32 sensor readings from Firebase
-        try {
-            app(FirebaseSyncService::class)->syncFromFirebase();
-        } catch (\Exception $e) {}
-
         $data = $this->heaterService->getAllHeaters();
 
         return ApiResponse::success(
@@ -80,5 +97,36 @@ class HeaterController extends Controller
             $data,
             'Data alert terbaru berhasil diambil'
         );
+    }
+
+    public function getSystemConfig()
+    {
+        $settings = \App\Models\Setting::first() ?: \App\Models\Setting::create([
+            'normal_min' => 9.00,
+            'warning_min' => 7.60,
+            'm_ct1' => 2.681,
+            'm_ct2' => 2.480,
+            'm_ct3' => 3.013,
+            'm_ct4' => 3.171,
+            'm_ct5' => 3.199,
+            'm_ct6' => 2.989,
+            'upper_baseline' => 10.939,
+            'lower_baseline' => 10.939,
+            'telegram_enabled' => true,
+            'sampling_interval' => 5
+        ]);
+
+        return response()->json([
+            'normal_min' => (float)$settings->normal_min,
+            'warning_min' => (float)$settings->warning_min,
+            'upper_baseline' => (float)$settings->upper_baseline,
+            'lower_baseline' => (float)$settings->lower_baseline,
+            'm_ct1' => (float)$settings->m_ct1,
+            'm_ct2' => (float)$settings->m_ct2,
+            'm_ct3' => (float)$settings->m_ct3,
+            'm_ct4' => (float)$settings->m_ct4,
+            'm_ct5' => (float)$settings->m_ct5,
+            'm_ct6' => (float)$settings->m_ct6,
+        ]);
     }
 }

@@ -19,23 +19,23 @@
                     </div>
                 </div>
 
-                <!-- 5 Summary KPI Cards (Fixed 1-Row Layout, Never Wraps) -->
-                <div class="d-flex flex-nowrap mb-4" style="gap: 12px; overflow-x: auto;">
+                <!-- 5 Summary KPI Cards (Fixed 1-Row Layout, Never Wraps, Auto-fits container) -->
+                <div class="d-flex mb-3" style="gap: 8px; overflow: hidden; width: 100%;">
                     <!-- Total Heater -->
-                    <div style="flex: 1; min-width: 170px;">
+                    <div style="flex: 1; min-width: 0;">
                         <div class="card shadow-sm border-0 h-100 rounded-lg">
-                            <div class="card-body d-flex align-items-center p-3">
-                                <div class="bg-primary rounded text-white d-flex align-items-center justify-content-center mr-3"
-                                    style="width: 44px; height: 44px; flex-shrink: 0;">
-                                    <i class="fas fa-th-large fa-lg"></i>
+                            <div class="card-body d-flex align-items-center p-2 p-lg-3">
+                                <div class="bg-primary rounded text-white d-flex align-items-center justify-content-center mr-2 mr-lg-3"
+                                    style="width: 38px; height: 38px; flex-shrink: 0;">
+                                    <i class="fas fa-th-large fa-sm"></i>
                                 </div>
-                                <div style="min-width: 0;">
+                                <div style="min-width: 0; line-height: 1.2;">
                                     <small class="text-muted font-weight-bold text-uppercase d-block text-truncate"
-                                        style="font-size: 10px;">Total Heater</small>
-                                    <h3 class="mb-0 font-weight-bold" id="total-heater"
-                                        style="color: #2c3e50; font-size: 18px;">0</h3>
-                                    <small class="text-muted d-block text-truncate" style="font-size: 10px;">
-                                        Aktif: <span id="heater-active">0</span> | Non: <span id="heater-inactive">0</span>
+                                        style="font-size: clamp(9.5px, 0.8vw, 11px);">Total Heater</small>
+                                    <h5 class="mb-0 font-weight-bold text-dark text-truncate" id="total-heater"
+                                        style="font-size: clamp(15px, 1.35vw, 20px);">0</h5>
+                                    <small class="text-muted d-block text-truncate" style="font-size: clamp(9px, 0.75vw, 10px);">
+                                        A:<span id="heater-active">0</span> | N:<span id="heater-inactive">0</span>
                                     </small>
                                 </div>
                             </div>
@@ -43,80 +43,80 @@
                     </div>
 
                     <!-- Normal -->
-                    <div style="flex: 1; min-width: 170px;">
+                    <div style="flex: 1; min-width: 0;">
                         <div class="card shadow-sm border-0 h-100 rounded-lg">
-                            <div class="card-body d-flex align-items-center p-3">
-                                <div class="bg-success rounded text-white d-flex align-items-center justify-content-center mr-3"
-                                    style="width: 44px; height: 44px; flex-shrink: 0;">
-                                    <i class="fas fa-check-circle fa-lg"></i>
+                            <div class="card-body d-flex align-items-center p-2 p-lg-3">
+                                <div class="bg-success rounded text-white d-flex align-items-center justify-content-center mr-2 mr-lg-3"
+                                    style="width: 38px; height: 38px; flex-shrink: 0;">
+                                    <i class="fas fa-check-circle fa-sm"></i>
                                 </div>
-                                <div style="min-width: 0;">
+                                <div style="min-width: 0; line-height: 1.2;">
                                     <small class="text-muted font-weight-bold text-uppercase d-block text-truncate"
-                                        style="font-size: 10px;">Normal</small>
-                                    <h3 class="mb-0 font-weight-bold" id="normal-count"
-                                        style="color: #2c3e50; font-size: 18px;">0</h3>
-                                    <small class="text-muted font-weight-bold d-block text-truncate" id="normal-pct"
-                                        style="font-size: 10px;">0%</small>
+                                        style="font-size: clamp(9.5px, 0.8vw, 11px);">Normal</small>
+                                    <h5 class="mb-0 font-weight-bold text-dark text-truncate" id="normal-count"
+                                        style="font-size: clamp(15px, 1.35vw, 20px);">0</h5>
+                                    <small class="text-muted font-weight-bold d-block text-truncate text-success" id="normal-pct"
+                                        style="font-size: clamp(9px, 0.75vw, 10px);">0%</small>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Warning -->
-                    <div style="flex: 1; min-width: 170px;">
+                    <div style="flex: 1; min-width: 0;">
                         <div class="card shadow-sm border-0 h-100 rounded-lg">
-                            <div class="card-body d-flex align-items-center p-3">
-                                <div class="bg-warning rounded text-white d-flex align-items-center justify-content-center mr-3"
-                                    style="width: 44px; height: 44px; flex-shrink: 0;">
-                                    <i class="fas fa-exclamation-circle fa-lg"></i>
+                            <div class="card-body d-flex align-items-center p-2 p-lg-3">
+                                <div class="bg-warning rounded text-white d-flex align-items-center justify-content-center mr-2 mr-lg-3"
+                                    style="width: 38px; height: 38px; flex-shrink: 0;">
+                                    <i class="fas fa-exclamation-circle fa-sm"></i>
                                 </div>
-                                <div style="min-width: 0;">
+                                <div style="min-width: 0; line-height: 1.2;">
                                     <small class="text-muted font-weight-bold text-uppercase d-block text-truncate"
-                                        style="font-size: 10px;">Warning</small>
-                                    <h3 class="mb-0 font-weight-bold text-dark" id="warning-count"
-                                        style="color: #2c3e50; font-size: 18px;">0</h3>
-                                    <small class="text-muted font-weight-bold d-block text-truncate" id="warning-pct"
-                                        style="font-size: 10px;">0%</small>
+                                        style="font-size: clamp(9.5px, 0.8vw, 11px);">Warning</small>
+                                    <h5 class="mb-0 font-weight-bold text-dark text-truncate" id="warning-count"
+                                        style="font-size: clamp(15px, 1.35vw, 20px);">0</h5>
+                                    <small class="text-muted font-weight-bold d-block text-truncate text-warning" id="warning-pct"
+                                        style="font-size: clamp(9px, 0.75vw, 10px);">0%</small>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Danger -->
-                    <div style="flex: 1; min-width: 170px;">
+                    <div style="flex: 1; min-width: 0;">
                         <div class="card shadow-sm border-0 h-100 rounded-lg">
-                            <div class="card-body d-flex align-items-center p-3">
-                                <div class="bg-danger rounded text-white d-flex align-items-center justify-content-center mr-3"
-                                    style="width: 44px; height: 44px; flex-shrink: 0;">
-                                    <i class="fas fa-exclamation-triangle fa-lg"></i>
+                            <div class="card-body d-flex align-items-center p-2 p-lg-3">
+                                <div class="bg-danger rounded text-white d-flex align-items-center justify-content-center mr-2 mr-lg-3"
+                                    style="width: 38px; height: 38px; flex-shrink: 0;">
+                                    <i class="fas fa-exclamation-triangle fa-sm"></i>
                                 </div>
-                                <div style="min-width: 0;">
+                                <div style="min-width: 0; line-height: 1.2;">
                                     <small class="text-muted font-weight-bold text-uppercase d-block text-truncate"
-                                        style="font-size: 10px;">Danger</small>
-                                    <h3 class="mb-0 font-weight-bold" id="danger-count"
-                                        style="color: #2c3e50; font-size: 18px;">0</h3>
-                                    <small class="text-muted font-weight-bold d-block text-truncate" id="danger-pct"
-                                        style="font-size: 10px;">0%</small>
+                                        style="font-size: clamp(9.5px, 0.8vw, 11px);">Danger</small>
+                                    <h5 class="mb-0 font-weight-bold text-dark text-truncate" id="danger-count"
+                                        style="font-size: clamp(15px, 1.35vw, 20px);">0</h5>
+                                    <small class="text-muted font-weight-bold d-block text-truncate text-danger" id="danger-pct"
+                                        style="font-size: clamp(9px, 0.75vw, 10px);">0%</small>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Update Terakhir -->
-                    <div style="flex: 1; min-width: 170px;">
+                    <div style="flex: 1; min-width: 0;">
                         <div class="card shadow-sm border-0 h-100 rounded-lg">
-                            <div class="card-body d-flex align-items-center p-3">
-                                <div class="bg-light rounded text-muted d-flex align-items-center justify-content-center mr-3"
-                                    style="width: 44px; height: 44px; flex-shrink: 0;">
-                                    <i class="far fa-clock fa-lg"></i>
+                            <div class="card-body d-flex align-items-center p-2 p-lg-3">
+                                <div class="bg-light rounded text-muted d-flex align-items-center justify-content-center mr-2 mr-lg-3"
+                                    style="width: 38px; height: 38px; flex-shrink: 0;">
+                                    <i class="far fa-clock fa-sm"></i>
                                 </div>
-                                <div style="min-width: 0;">
+                                <div style="min-width: 0; line-height: 1.2;">
                                     <small class="text-muted font-weight-bold text-uppercase d-block text-truncate"
-                                        style="font-size: 10px;">Update Terakhir</small>
-                                    <h3 class="mb-0 font-weight-bold text-truncate" id="last-update-time"
-                                        style="color: #2c3e50; font-size: 16px;">-</h3>
+                                        style="font-size: clamp(9.5px, 0.8vw, 11px);">Update Terakhir</small>
+                                    <h5 class="mb-0 font-weight-bold text-dark text-truncate" id="last-update-time"
+                                        style="font-size: clamp(12px, 1.05vw, 16px);">-</h5>
                                     <small class="text-muted d-block text-truncate" id="last-update-date"
-                                        style="font-size: 10px;">-</small>
+                                        style="font-size: clamp(9px, 0.75vw, 10px);">-</small>
                                 </div>
                             </div>
                         </div>
