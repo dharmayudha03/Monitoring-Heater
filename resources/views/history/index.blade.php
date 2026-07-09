@@ -19,20 +19,26 @@
                     <div class="d-flex align-items-center flex-nowrap" style="gap: 6px; flex-shrink: 0;">
                         <button type="button" class="btn btn-sm btn-success rounded-pill font-weight-bold shadow-sm"
                             data-toggle="modal" data-target="#modalPreviewExcel"
-                            style="white-space: nowrap; font-size: clamp(10px, 0.85vw, 12px); padding: 5px 14px;">
-                            <i class="fas fa-file-excel mr-1"></i> Preview & Export Dataset
+                            style="white-space: nowrap; font-size: 11px; padding: 5px 12px;">
+                            <i class="fas fa-file-excel mr-1"></i>
+                            <span class="d-none d-md-inline">Preview & Export Dataset</span>
+                            <span class="d-inline d-md-none">Excel</span>
                         </button>
                         <a id="btnHistoryCetakPdf"
                             href="{{ route('history.export.pdf', array_merge(request()->all(), ['action' => 'print'])) }}"
                             target="_blank" class="btn btn-sm btn-primary rounded-pill font-weight-bold shadow-sm"
-                            style="white-space: nowrap; font-size: clamp(10px, 0.85vw, 12px); padding: 5px 12px;">
-                            <i class="fas fa-print mr-1"></i> Cetak PDF
+                            style="white-space: nowrap; font-size: 11px; padding: 5px 12px;">
+                            <i class="fas fa-print mr-1"></i>
+                            <span class="d-none d-md-inline">Cetak PDF</span>
+                            <span class="d-inline d-md-none">Cetak</span>
                         </a>
                         <a id="btnHistoryDownloadPdf"
                             href="{{ route('history.export.pdf', array_merge(request()->all(), ['action' => 'download'])) }}"
                             target="_blank" class="btn btn-sm btn-danger rounded-pill font-weight-bold shadow-sm"
-                            style="white-space: nowrap; font-size: clamp(10px, 0.85vw, 12px); padding: 5px 12px;">
-                            <i class="fas fa-file-download mr-1"></i> Download PDF
+                            style="white-space: nowrap; font-size: 11px; padding: 5px 12px;">
+                            <i class="fas fa-file-download mr-1"></i>
+                            <span class="d-none d-md-inline">Download PDF</span>
+                            <span class="d-inline d-md-none">PDF</span>
                         </a>
                     </div>
                 </div>

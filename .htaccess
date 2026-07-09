@@ -1,9 +1,7 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Kirim request kosong ke folder public/
-    RewriteRule ^$ public/ [L]
-
-    # Kirim semua request yang tidak dimulai dengan "public/" ke folder "public/"
-    RewriteRule ^((?!public/).*)$ public/$1 [L]
+    # 1. Kirim semua request yang tidak dimulai dengan "public/" ke folder "public/" secara internal
+    RewriteCond %{REQUEST_URI} !/public/
+    RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>

@@ -19,10 +19,10 @@
                     </div>
                 </div>
 
-                <!-- 5 Summary KPI Cards (Fixed 1-Row Layout, Never Wraps, Auto-fits container) -->
-                <div class="d-flex mb-3" style="gap: 8px; overflow: hidden; width: 100%;">
+                <!-- 5 Summary KPI Cards (Responsive layout: 2 cols on mobile, 5 cols on desktop) -->
+                <div class="row no-gutters mb-3" style="margin: -4px;">
                     <!-- Total Heater -->
-                    <div style="flex: 1; min-width: 0;">
+                    <div class="col-6 col-md p-1">
                         <div class="card shadow-sm border-0 h-100 rounded-lg">
                             <div class="card-body d-flex align-items-center p-2 p-lg-3">
                                 <div class="bg-primary rounded text-white d-flex align-items-center justify-content-center mr-2 mr-lg-3"
@@ -43,7 +43,7 @@
                     </div>
 
                     <!-- Normal -->
-                    <div style="flex: 1; min-width: 0;">
+                    <div class="col-6 col-md p-1">
                         <div class="card shadow-sm border-0 h-100 rounded-lg">
                             <div class="card-body d-flex align-items-center p-2 p-lg-3">
                                 <div class="bg-success rounded text-white d-flex align-items-center justify-content-center mr-2 mr-lg-3"
@@ -57,13 +57,13 @@
                                         style="font-size: clamp(15px, 1.35vw, 20px);">0</h5>
                                     <small class="text-muted font-weight-bold d-block text-truncate text-success" id="normal-pct"
                                         style="font-size: clamp(9px, 0.75vw, 10px);">0%</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
 
                     <!-- Warning -->
-                    <div style="flex: 1; min-width: 0;">
+                    <div class="col-6 col-md p-1">
                         <div class="card shadow-sm border-0 h-100 rounded-lg">
                             <div class="card-body d-flex align-items-center p-2 p-lg-3">
                                 <div class="bg-warning rounded text-white d-flex align-items-center justify-content-center mr-2 mr-lg-3"
@@ -83,7 +83,7 @@
                     </div>
 
                     <!-- Danger -->
-                    <div style="flex: 1; min-width: 0;">
+                    <div class="col-6 col-md p-1">
                         <div class="card shadow-sm border-0 h-100 rounded-lg">
                             <div class="card-body d-flex align-items-center p-2 p-lg-3">
                                 <div class="bg-danger rounded text-white d-flex align-items-center justify-content-center mr-2 mr-lg-3"
@@ -103,7 +103,7 @@
                     </div>
 
                     <!-- Update Terakhir -->
-                    <div style="flex: 1; min-width: 0;">
+                    <div class="col-12 col-md p-1">
                         <div class="card shadow-sm border-0 h-100 rounded-lg">
                             <div class="card-body d-flex align-items-center p-2 p-lg-3">
                                 <div class="bg-light rounded text-muted d-flex align-items-center justify-content-center mr-2 mr-lg-3"
