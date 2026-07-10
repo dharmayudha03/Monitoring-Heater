@@ -85,7 +85,7 @@
                                     class="{{ $bgHeader }} text-white p-3 d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="font-weight-bold mb-0">{{ $heater->heater_code }}</h6>
-                                        <small style="font-size: 11px; opacity: 0.9;">{{ $heater->heater_name }} |
+                                        <small style="font-size: 11px; opacity: 0.9;">{{ $heater->machine_name }} |
                                             {{ $heater->zone }}</small>
                                     </div>
                                     <span class="badge badge-light text-dark font-weight-bold px-2 py-1"

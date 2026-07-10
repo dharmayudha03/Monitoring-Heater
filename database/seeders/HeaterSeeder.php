@@ -52,6 +52,7 @@ class HeaterSeeder extends Seeder
             Heater::updateOrCreate(
                 ['heater_code' => $h['heater_code']],
                 [
+                    'machine_name' => 'Injection Tungyu',
                     'heater_name' => $h['heater_name'],
                     'zone' => $h['zone'],
                     'description' => $h['description'],

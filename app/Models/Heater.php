@@ -9,6 +9,7 @@ class Heater extends Model
 {
     protected $fillable = [
         'heater_code',
+        'machine_name',
         'heater_name',
         'zone',
         'description',

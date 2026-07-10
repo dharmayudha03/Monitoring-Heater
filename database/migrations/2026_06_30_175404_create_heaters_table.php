@@ -13,6 +13,7 @@ return new class extends Migration {
         Schema::create('heaters', function (Blueprint $table) {
             $table->id();
             $table->string('heater_code', 20)->unique();
+            $table->string('machine_name', 100)->default('Injection Tungyu');
             $table->string('heater_name', 100);
             $table->string('zone', 100);
             $table->text('description')->nullable();
