@@ -128,21 +128,38 @@ void loop() {
     }
   }
   
-  // --- B. ENGINE PEMBACAAN TOMBOL SAKELAR (GPIO 22) - DENGAN DEBOUNCE ---
+  // --- B. ENGINE PEMBACAAN TOMBOL SAKELAR (GPIO 22) - DUAL FUNCTION (SHORT & LONG PRESS) ---
   int bacaTombol = digitalRead(PIN_TOMBOL_MODE);
-  if (bacaTombol != statusTombolTerakhir) {
-    waktuDebounceTerakhir = currentMillis;
-  }
+  static unsigned long waktuTekanTombol = 0;
+  static bool tombolSedangDitekan = false;
 
-  if ((currentMillis - waktuDebounceTerakhir) > JEDA_DEBOUNCE) {
-    if (bacaTombol == LOW && statusTombolTerakhir == HIGH) {
-      sistemAktif = !sistemAktif; // Toggle status ON <-> OFF
+  if (bacaTombol == LOW) {
+    if (!tombolSedangDitekan) {
+      waktuTekanTombol = currentMillis;
+      tombolSedangDitekan = true;
+    } else {
+      // Jika ditekan lama (5 detik), hapus setelan Wi-Fi dan restart untuk memicu portal
+      if (currentMillis - waktuTekanTombol >= 5000) {
+        Serial.println(F("\n>>> [WIFI RESET] Tombol ditekan 5 detik! Menghapus setelan Wi-Fi dan restart..."));
+        WiFiManager wm;
+        wm.resetSettings();
+        delay(1000);
+        ESP.restart();
+      }
+    }
+  } else { // HIGH (Dilepas)
+    if (tombolSedangDitekan) {
+      unsigned long lamaDitekan = currentMillis - waktuTekanTombol;
+      tombolSedangDitekan = false;
       
-      Serial.print(">>> [MODE SWITCH] Status Sistem Berubah! Aktif = ");
-      Serial.println(sistemAktif ? "YES" : "NO");
+      // Jika ditekan singkat (di bawah 5 detik dan di atas jeda debounce)
+      if (lamaDitekan >= JEDA_DEBOUNCE && lamaDitekan < 5000) {
+        sistemAktif = !sistemAktif; // Toggle status ON <-> OFF
+        Serial.print(">>> [MODE SWITCH] Status Sistem Berubah! Aktif = ");
+        Serial.println(sistemAktif ? "YES" : "NO");
+      }
     }
   }
-  statusTombolTerakhir = bacaTombol;
 
   // --- C. INTERLOCK FILTER: BYPASS JIKA MODE MAINTENANCE ---
   if (!sistemAktif) {
