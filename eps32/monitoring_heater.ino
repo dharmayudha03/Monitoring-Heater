@@ -18,7 +18,7 @@
 // 1. KONFIGURASI WEB SERVER LARAVEL API
 // =================================================================
 // Contoh IP XAMPP Server lokal Anda (Ubah ke IP komputer server Anda, atau gunakan domain ngrok/serveo)
-const String WEB_SERVER_URL = "http://192.168.1.100/heater-monitoring-system/public"; 
+const String WEB_SERVER_URL = "http://192.168.1.8/heater-monitoring-system"; 
 
 // Baseline acuan untuk fungsi Smart Logging (Diupdate otomatis dari database Laravel)
 float upper_baseline = 10.939; 
