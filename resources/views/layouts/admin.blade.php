@@ -58,7 +58,7 @@
 
         async function updateNavbarNotificationBadge() {
             try {
-                const res = await fetch("{{ url('/api/heaters/alerts') }}");
+                const res = await fetch("{{ url('/api/v1/heaters/alerts') }}");
                 const json = await res.json();
                 const count = json.data ? json.data.length : 0;
                 globalTotalAlerts = count;
