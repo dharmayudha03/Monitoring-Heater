@@ -412,3 +412,259 @@ TABLE
     z-index: 1030;
 }
 
+/*==================================================
+    FACTORY FLOOR LAYOUT MAP
+==================================================*/
+
+.factory-floor-container {
+    overflow-x: auto;
+    width: 100%;
+    margin-bottom: 24px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.factory-floor {
+    min-width: 1050px;
+    background-color: #f8fafc;
+    background-image: 
+        linear-gradient(0deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px), 
+        linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+    background-size: 20px 20px;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid #e2e8f0;
+    position: relative;
+}
+
+.floor-row-wrapper {
+    margin-bottom: 24px;
+}
+
+.floor-row-wrapper:last-child {
+    margin-bottom: 0;
+}
+
+.floor-row-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.floor-row-label::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: #cbd5e1;
+    margin-left: 10px;
+}
+
+.floor-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: nowrap;
+}
+
+.machine-node {
+    width: 108px;
+    height: 86px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    user-select: none;
+    box-sizing: border-box;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.machine-node .mach-code {
+    font-size: 8px;
+    opacity: 0.8;
+    margin-top: 2px;
+    text-transform: uppercase;
+}
+
+/* Machine color-coded statuses (Matching drawing exactly) */
+.mc-active {
+    border-color: #a7f3d0;
+    background-color: #f0fdf4;
+    color: #047857;
+}
+
+.mc-repairable {
+    border-color: #fde68a;
+    background-color: #fffbeb;
+    color: #b45309;
+}
+
+.mc-broken {
+    border-color: #fca5a5;
+    background-color: #fef2f2;
+    color: #b91c1c;
+}
+
+/* Monitored target machine styling (Matching the RED dotted box from user layout drawing) */
+.mc-monitored {
+    cursor: pointer;
+    background: #eff6ff;
+    border: 2px dashed #ef4444; /* Dotted red box */
+    color: #1d4ed8;
+    z-index: 10;
+}
+
+.mc-monitored:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Pulsing glow animation classes for monitored machine */
+.glow-pulsing-green {
+    border-style: solid !important;
+    border-color: #10b981 !important;
+    background-color: #f0fdf4 !important;
+    color: #047857 !important;
+    animation: pulse-glow-green 2s infinite;
+}
+
+.glow-pulsing-yellow {
+    border-style: solid !important;
+    border-color: #f59e0b !important;
+    background-color: #fffbeb !important;
+    color: #b45309 !important;
+    animation: pulse-glow-yellow 2s infinite;
+}
+
+.glow-pulsing-red {
+    border-style: solid !important;
+    border-color: #ef4444 !important;
+    background-color: #fef2f2 !important;
+    color: #b91c1c !important;
+    animation: pulse-glow-red 2s infinite;
+}
+
+.glow-pulsing-grey {
+    border-style: dashed !important;
+    border-color: #ef4444 !important; /* Keep the red dashed box highlight */
+    background-color: #f8fafc !important;
+    color: #475569 !important;
+    animation: pulse-glow-grey 2s infinite;
+}
+
+@keyframes pulse-glow-green {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+    70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes pulse-glow-yellow {
+    0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+    70% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+}
+
+@keyframes pulse-glow-red {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+@keyframes pulse-glow-grey {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3); }
+    70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Sleek popover hover card style */
+.machine-popover {
+    position: absolute;
+    z-index: 1000;
+    background: rgba(15, 23, 42, 0.98);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 16px;
+    width: 290px;
+    color: #fff;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    left: 0;
+    top: 0;
+}
+
+.machine-popover.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.machine-popover-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+}
+
+.machine-popover-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.machine-popover-subtitle {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.machine-popover-body {
+    font-size: 11px;
+}
+
+.popover-sensor-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.popover-sensor-item {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 6px;
+    padding: 6px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.popover-sensor-item.warning {
+    border-color: rgba(245, 158, 11, 0.3);
+    background: rgba(245, 158, 11, 0.05);
+}
+
+.popover-sensor-item.danger {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.popover-sensor-item.offline {
+    border-color: rgba(107, 114, 128, 0.3);
+    background: rgba(107, 114, 128, 0.05);
+}
+
+
