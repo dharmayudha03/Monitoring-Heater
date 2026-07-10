@@ -20,6 +20,7 @@ async function loadDashboard() {
         if (document.getElementById("total-heater")) updateSummary(heaterData);
         if (document.getElementById("heaterTable")) renderTablePage(currentPage);
         if (statusChart) updateStatusChart(heaterData);
+        if (document.getElementById("monitored-machine")) updateFactoryFloorMap(heaterData);
 
         if (currentChart) fetchChartData();
         fetchAlertsData();
@@ -423,6 +424,62 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Interactive Popover for Monitored Machine
+    const monitoredMachine = document.getElementById("monitored-machine");
+    const popover = document.getElementById("machine-details-popover");
+
+    if (monitoredMachine && popover) {
+        monitoredMachine.addEventListener("mouseenter", (e) => {
+            popover.classList.add("show");
+            positionPopover(e);
+        });
+
+        monitoredMachine.addEventListener("mousemove", (e) => {
+            positionPopover(e);
+        });
+
+        monitoredMachine.addEventListener("mouseleave", () => {
+            popover.classList.remove("show");
+        });
+
+        monitoredMachine.addEventListener("click", (e) => {
+            e.stopPropagation();
+            popover.classList.toggle("show");
+            positionPopover(e);
+        });
+
+        document.addEventListener("click", () => {
+            popover.classList.remove("show");
+        });
+    }
+
+    function positionPopover(e) {
+        const container = document.querySelector(".factory-floor-container");
+        if (!container) return;
+
+        const containerRect = container.getBoundingClientRect();
+        
+        let x = e.clientX - containerRect.left + container.scrollLeft;
+        let y = e.clientY - containerRect.top + container.scrollTop;
+
+        x += 15;
+        y += 15;
+
+        const popoverWidth = popover.offsetWidth || 290;
+        const popoverHeight = popover.offsetHeight || 200;
+
+        if (x + popoverWidth > container.scrollWidth) {
+            x = e.clientX - containerRect.left + container.scrollLeft - popoverWidth - 15;
+        }
+
+        if (y + popoverHeight > container.scrollHeight) {
+            y = e.clientY - containerRect.top + container.scrollTop - popoverHeight - 15;
+        }
+
+        popover.style.left = `${x}px`;
+        popover.style.top = `${y}px`;
+    }
+
     // Filter controls
     const mainFilterEl = document.getElementById('mainFilter');
     const shiftSubFilterEl = document.getElementById('shiftSubFilter');
@@ -465,3 +522,96 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setInterval(loadDashboard, 5000);
 });
+
+// =================================================================
+// FACTORY FLOOR LAYOUT MAP LOGIC
+// =================================================================
+function updateFactoryFloorMap(data) {
+    const machineNode = document.getElementById("monitored-machine");
+    const statusText = document.getElementById("mach-status-text");
+    const popoverOverall = document.getElementById("popover-overall-status");
+    const sensorContainer = document.getElementById("popover-sensor-container");
+    const popoverLastUpdate = document.getElementById("popover-last-update");
+
+    if (!machineNode) return;
+
+    let overallStatus = "OFFLINE";
+    let sensorsHtml = "";
+    let dangerCount = 0;
+    let warningCount = 0;
+    let offlineCount = 0;
+    let normalCount = 0;
+    let latestTime = "-";
+
+    data.forEach(h => {
+        const log = h.latest_log;
+        const status = log ? log.status : "OFFLINE";
+        const current = log ? parseFloat(log.current) : 0.00;
+        
+        if (status === "DANGER") dangerCount++;
+        else if (status === "WARNING") warningCount++;
+        else if (status === "OFFLINE") offlineCount++;
+        else if (status === "NORMAL") normalCount++;
+
+        if (log && log.received_at) {
+            const dateObj = new Date(log.received_at);
+            latestTime = dateObj.toTimeString().split(' ')[0];
+        }
+
+        let itemClass = "";
+        let badgeClass = "badge-secondary";
+        if (status === "NORMAL") {
+            badgeClass = "badge-success";
+        } else if (status === "WARNING") {
+            itemClass = "warning";
+            badgeClass = "badge-warning text-dark";
+        } else if (status === "DANGER") {
+            itemClass = "danger";
+            badgeClass = "badge-danger";
+        } else if (status === "OFFLINE") {
+            itemClass = "offline";
+            badgeClass = "badge-secondary";
+        }
+
+        sensorsHtml += `
+        <div class="popover-sensor-item ${itemClass}">
+            <span class="font-weight-bold">${h.heater_code}</span>
+            <span class="badge ${badgeClass}" style="font-size: 9px;">${current.toFixed(2)} A</span>
+        </div>`;
+    });
+
+    if (dangerCount > 0) {
+        overallStatus = "DANGER";
+    } else if (warningCount > 0) {
+        overallStatus = "WARNING";
+    } else if (normalCount > 0) {
+        overallStatus = "NORMAL";
+    } else {
+        overallStatus = "OFFLINE";
+    }
+
+    // Reset glow classes
+    machineNode.classList.remove("glow-pulsing-green", "glow-pulsing-yellow", "glow-pulsing-red", "glow-pulsing-grey");
+
+    let popoverBadgeClass = "badge-secondary";
+    if (overallStatus === "NORMAL") {
+        machineNode.classList.add("glow-pulsing-green");
+        popoverBadgeClass = "badge-success";
+    } else if (overallStatus === "WARNING") {
+        machineNode.classList.add("glow-pulsing-yellow");
+        popoverBadgeClass = "badge-warning text-dark";
+    } else if (overallStatus === "DANGER") {
+        machineNode.classList.add("glow-pulsing-red");
+        popoverBadgeClass = "badge-danger";
+    } else {
+        machineNode.classList.add("glow-pulsing-grey");
+    }
+
+    if (statusText) statusText.innerText = overallStatus;
+    if (popoverOverall) {
+        popoverOverall.innerText = overallStatus;
+        popoverOverall.className = `badge ${popoverBadgeClass}`;
+    }
+    if (sensorContainer) sensorContainer.innerHTML = sensorsHtml;
+    if (popoverLastUpdate) popoverLastUpdate.innerText = latestTime;
+}

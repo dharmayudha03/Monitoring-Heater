@@ -419,27 +419,27 @@ TABLE
 .factory-floor-container {
     overflow-x: auto;
     width: 100%;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     background: #ffffff;
-    border-radius: 16px;
+    border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 }
 
 .factory-floor {
-    min-width: 1050px;
+    min-width: 980px;
     background-color: #f8fafc;
     background-image: 
         linear-gradient(0deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px), 
         linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
-    background-size: 20px 20px;
-    border-radius: 16px;
-    padding: 24px;
+    background-size: 16px 16px;
+    border-radius: 12px;
+    padding: 16px;
     border: 1px solid #e2e8f0;
     position: relative;
 }
 
 .floor-row-wrapper {
-    margin-bottom: 24px;
+    margin-bottom: 16px;
 }
 
 .floor-row-wrapper:last-child {
@@ -447,12 +447,12 @@ TABLE
 }
 
 .floor-row-label {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     color: #475569;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
 }
@@ -460,41 +460,41 @@ TABLE
 .floor-row-label::after {
     content: '';
     flex: 1;
-    height: 2px;
+    height: 1px;
     background: #cbd5e1;
     margin-left: 10px;
 }
 
 .floor-row {
     display: flex;
-    gap: 16px;
+    gap: 8px;
     flex-wrap: nowrap;
 }
 
 .machine-node {
-    width: 108px;
-    height: 86px;
-    border-radius: 12px;
+    width: 58px;
+    height: 52px;
+    border-radius: 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-size: 10px;
-    font-weight: 600;
+    font-size: 7px;
+    font-weight: 700;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     user-select: none;
     box-sizing: border-box;
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .machine-node .mach-code {
-    font-size: 8px;
+    font-size: 6px;
     opacity: 0.8;
-    margin-top: 2px;
+    margin-top: 1px;
     text-transform: uppercase;
 }
 
