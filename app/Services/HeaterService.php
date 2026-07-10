@@ -38,7 +38,9 @@ class HeaterService
         ]);
 
         // Tentukan status berdasarkan setingan dinamis db
-        if ($data['current'] >= $settings->normal_min) {
+        if ($data['current'] < 1.0) {
+            $status = 'OFFLINE';
+        } elseif ($data['current'] >= $settings->normal_min) {
             $status = 'NORMAL';
         } elseif ($data['current'] >= $settings->warning_min) {
             $status = 'WARNING';
