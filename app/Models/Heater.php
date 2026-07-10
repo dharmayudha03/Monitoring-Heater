@@ -13,12 +13,31 @@ class Heater extends Model
         'heater_name',
         'zone',
         'description',
-        'is_active'
+        'is_active',
+        'last_current',
+        'last_status',
+        'last_received_at'
     ];
 
     protected $casts = [
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
+        'last_received_at' => 'datetime'
     ];
+
+    protected $appends = ['latest_log'];
+
+    public function getLatestLogAttribute()
+    {
+        if ($this->last_current === null) {
+            return null;
+        }
+
+        return (object)[
+            'current' => $this->last_current,
+            'status' => $this->last_status,
+            'received_at' => $this->last_received_at ? $this->last_received_at->toIso8601String() : null,
+        ];
+    }
 
     public function logs(): HasMany
     {

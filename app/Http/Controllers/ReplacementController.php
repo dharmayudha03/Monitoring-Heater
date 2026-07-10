@@ -15,7 +15,7 @@ class ReplacementController extends Controller
     {
         $replacements = Replacement::with('heater')->orderBy('replacement_date', 'desc')->paginate(10);
 
-        $dangerHeaters = Heater::where('is_active', true)->with('latestLog')->get()->filter(function ($h) {
+        $dangerHeaters = Heater::where('is_active', true)->get()->filter(function ($h) {
             return $h->latest_log && $h->latest_log->status === 'DANGER';
         });
 

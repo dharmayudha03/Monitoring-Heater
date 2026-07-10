@@ -20,7 +20,8 @@ class HeaterService
             abort(404, 'Heater tidak ditemukan');
         }
 
-        $previousStatus = $heater->latestLog ? $heater->latestLog->status : 'NORMAL';
+        $previousStatus = $heater->last_status ?? 'NORMAL';
+        $lastLogTime = $heater->last_received_at;
 
         $settings = Setting::first() ?: Setting::create([
             'normal_min' => 9.00,
@@ -48,14 +49,35 @@ class HeaterService
             $status = 'DANGER';
         }
 
-        $log = HeaterLog::create([
-            'heater_id' => $heater->id,
-            'adc_value' => $data['adc_value'] ?? null,
-            'current' => $data['current'],
-            'voltage' => $data['voltage'] ?? null,
-            'temperature' => $data['temperature'] ?? null,
-            'status' => $status,
-            'received_at' => now(),
+        // Tentukan apakah kita perlu mencatat log histori ke database.
+        // Aturannya:
+        // 1. Jika status berubah (misal NORMAL ke DANGER, atau NORMAL ke OFFLINE)
+        // 2. ATAU jika log terakhir sudah lebih dari 15 menit yang lalu (log rutin 15 menit)
+        $shouldLog = false;
+        if ($status !== $previousStatus) {
+            $shouldLog = true;
+        } elseif (!$lastLogTime || now()->diffInMinutes($lastLogTime) >= 15) {
+            $shouldLog = true;
+        }
+
+        $log = null;
+        if ($shouldLog) {
+            $log = HeaterLog::create([
+                'heater_id' => $heater->id,
+                'adc_value' => $data['adc_value'] ?? null,
+                'current' => $data['current'],
+                'voltage' => $data['voltage'] ?? null,
+                'temperature' => $data['temperature'] ?? null,
+                'status' => $status,
+                'received_at' => now(),
+            ]);
+        }
+
+        // Selalu perbarui status real-time terakhir pada tabel heaters
+        $heater->update([
+            'last_current' => $data['current'],
+            'last_status' => $status,
+            'last_received_at' => now(),
         ]);
 
         // Trigger Automatic Real-Time Telegram Alert for WARNING or DANGER
@@ -70,7 +92,7 @@ class HeaterService
                 $msg = "{$icon} <b>DETEKSI SENSOR: STATUS {$status}</b>\n\n"
                      . "Kode Heater: <b>{$heater->heater_code}</b> ({$heater->heater_name})\n"
                      . "Zona: {$heater->zone}\n"
-                     . "Arus: <b>{$log->current} A</b>\n"
+                     . "Arus: <b>{$data['current']} A</b>\n"
                      . "Waktu: " . now()->format('d-m-Y H:i:s') . "\n\n"
                      . "{$actionMsg}";
                 
@@ -78,13 +100,12 @@ class HeaterService
             } catch (\Exception $e) {}
         }
 
-        return $log;
+        return $log ?? $heater;
     }
 
     public function getAllHeaters()
     {
         return Heater::where('is_active', true)
-            ->with('latestLog')
             ->orderBy('heater_code')
             ->get();
     }

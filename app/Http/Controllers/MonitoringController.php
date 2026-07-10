@@ -9,7 +9,7 @@ class MonitoringController extends Controller
 {
     public function index()
     {
-        $heaters = Heater::where('is_active', true)->with('latestLog')->orderBy('heater_code')->get();
+        $heaters = Heater::where('is_active', true)->orderBy('heater_code')->get();
         $sysSetting = \App\Models\Setting::first() ?: \App\Models\Setting::create([
             'normal_min' => 9.00,
             'warning_min' => 7.60,

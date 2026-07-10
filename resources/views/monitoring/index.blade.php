@@ -51,7 +51,7 @@
                 <div class="row">
                     @foreach ($heaters as $heater)
                         @php
-                            $log = $heater->latestLog;
+                            $log = $heater->latest_log;
                             $status = $log ? $log->status : 'OFFLINE';
 
                             $bgHeader = 'bg-success';

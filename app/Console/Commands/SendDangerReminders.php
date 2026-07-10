@@ -18,10 +18,9 @@ class SendDangerReminders extends Command
     {
         $this->info('Memeriksa heater ber-status DANGER / WARNING yang belum diganti...');
 
-        $dangerHeaters = Heater::where('is_active', true)->with('latestLog')->get()->filter(function ($h) {
-            $log = $h->latestLog;
-            return $log && in_array($log->status, ['DANGER', 'WARNING']);
-        });
+        $dangerHeaters = Heater::where('is_active', true)
+            ->whereIn('last_status', ['DANGER', 'WARNING'])
+            ->get();
 
         if ($dangerHeaters->isEmpty()) {
             $this->info('Tidak ada heater dengan status DANGER / WARNING saat ini.');
@@ -45,7 +44,7 @@ class SendDangerReminders extends Command
 
         $count = 0;
         foreach ($dangerHeaters as $heater) {
-            $log = $heater->latestLog;
+            $log = $heater->latest_log;
 
             // Cari log paling awal saat status heater mulai menjadi DANGER/WARNING secara berurutan
             $firstAnomalyLog = HeaterLog::where('heater_id', $heater->id)

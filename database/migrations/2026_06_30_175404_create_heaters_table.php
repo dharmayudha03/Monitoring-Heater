@@ -18,6 +18,9 @@ return new class extends Migration {
             $table->string('zone', 100);
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->decimal('last_current', 8, 2)->nullable();
+            $table->string('last_status', 20)->nullable();
+            $table->timestamp('last_received_at')->nullable();
             $table->timestamps();
         });
     }
