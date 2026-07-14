@@ -165,13 +165,7 @@ class SettingController extends Controller
             }
         }
 
-        // Push updates to Firebase so the ESP32 fetches them instantly
-        try {
-            Http::withoutVerifying()
-                ->patch('https://ctfh-f0c6d-default-rtdb.firebaseio.com/konfigurasi_sistem.json?auth=AIzaSyBK41jJSMb0u4SnaibRqRA1gelzjh40zIo', [
-                    $field => (float)round($newMultiplier, 3),
-                ]);
-        } catch (\Exception $e) {}
+
 
         return redirect()->back()->with('success', "Sensor {$request->heater_code} berhasil dikalibrasi! Multiplier diubah dari {$oldMultiplier} menjadi " . round($newMultiplier, 3));
     }

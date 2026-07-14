@@ -6,7 +6,6 @@ use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreHeaterLogRequest;
 use App\Services\HeaterService;
-use App\Services\FirebaseSyncService;
 use Illuminate\Http\JsonResponse;
 
 class HeaterController extends Controller
