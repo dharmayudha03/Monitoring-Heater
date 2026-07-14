@@ -102,6 +102,7 @@ void setup() {
   // -----------------------------------------------------------------
   WiFiManager wm;
   wm.setConfigPortalTimeout(180); // Batasi portal 3 menit
+  wm.setConnectTimeout(15);       // Batasi pencarian Wi-Fi tersimpan maks 15 detik sebelum memancarkan hotspot AP
 
   Serial.println("[WIFI] Memulai autoconnect / menyalakan AP Portal...");
   if (!wm.autoConnect("Tungyu-Heater-IoT")) {
