@@ -20,6 +20,18 @@ class HeaterService
             abort(404, 'Heater tidak ditemukan');
         }
 
+        // Reset/Forget offline alert jika ada data telemetri masuk (berarti online)
+        if (\Illuminate\Support\Facades\Cache::get('esp32_offline_alert_sent', false)) {
+            $msg = "🟢 <b>KONEKSI PULIH (ESP32 ONLINE)</b>\n\n"
+                 . "Perangkat monitoring IoT Tungyu Heater kini telah terhubung kembali (<b>ONLINE</b>)!\n"
+                 . "Aliran data telemetri bulk dilanjutkan dengan sukses.\n\n"
+                 . "📅 <b>Waktu Pulih:</b> " . now()->format('d-m-Y H:i:s') . "\n\n"
+                 . "✅ <i>Sistem monitoring berjalan normal kembali. Terima kasih!</i>";
+
+            app(\App\Services\TelegramService::class)->sendMessage($msg);
+            \Illuminate\Support\Facades\Cache::forget('esp32_offline_alert_sent');
+        }
+
         $previousStatus = $heater->last_status ?? 'NORMAL';
         $lastLogTime = $heater->last_received_at;
 

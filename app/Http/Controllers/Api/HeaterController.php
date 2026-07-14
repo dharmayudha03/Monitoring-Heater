@@ -59,6 +59,34 @@ class HeaterController extends Controller
         );
     }
 
+    public function wifiStatus(\Illuminate\Http\Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'status' => 'required|string|in:CONNECTED,DISCONNECTED'
+        ]);
+
+        $status = $data['status'];
+        
+        if ($status === 'CONNECTED') {
+            $wasAlerted = \Illuminate\Support\Facades\Cache::get('esp32_offline_alert_sent', false);
+            if ($wasAlerted) {
+                $msg = "🟢 <b>KONEKSI PULIH (ESP32 ONLINE)</b>\n\n"
+                     . "Perangkat monitoring IoT Tungyu Heater kini telah terhubung kembali (<b>ONLINE</b>)!\n"
+                     . "Aliran data telemetri bulk dilanjutkan dengan sukses.\n\n"
+                     . "📅 <b>Waktu Pulih:</b> " . now()->format('d-m-Y H:i:s') . "\n\n"
+                     . "✅ <i>Sistem monitoring berjalan normal kembali. Terima kasih!</i>";
+
+                app(\App\Services\TelegramService::class)->sendMessage($msg);
+                \Illuminate\Support\Facades\Cache::forget('esp32_offline_alert_sent');
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status WiFi berhasil dicatat'
+        ]);
+    }
+
     public function getAll()
     {
         $data = $this->heaterService->getAllHeaters();

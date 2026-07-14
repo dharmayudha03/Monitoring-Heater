@@ -59,6 +59,7 @@ bool sedangMencobaKoneksi = false;
 double bacaIRMSInternalADC(int pin, int sensorIndex, bool showDebug);
 void kirimKeLaravelBulk(double arusHasil[]);
 void ambilKonfigurasiSistem();
+void kirimNotifikasiStatusWiFi(String status);
 
 // =================================================================
 // VARIABLE UNTUK INTERLOCK REKAYASA KONTAKTOR (PADA BAGIAN GLOBAL)
@@ -112,6 +113,7 @@ void setup() {
   Serial.println("\n[WIFI] Sukses Terhubung! IP Perangkat: " + WiFi.localIP().toString());
   analogReadResolution(12);
   ambilKonfigurasiSistem();
+  kirimNotifikasiStatusWiFi("CONNECTED");
 
   Serial.println("[STATUS] Setup selesai. Memulai pemantauan...\n");
 }
@@ -139,6 +141,7 @@ void loop() {
       if (sedangMencobaKoneksi) {
         Serial.println(F("[WIFI] Terhubung Kembali dengan Sukses!"));
         sedangMencobaKoneksi = false;
+        kirimNotifikasiStatusWiFi("CONNECTED");
       }
     }
   }
@@ -318,4 +321,31 @@ double bacaIRMSInternalADC(int pin, int sensorIndex, bool showDebug) {
   }
 
   return irms;
+}
+
+// =================================================================
+// 9. PENGIRIMAN NOTIFIKASI STATUS WI-FI KE WEB SERVER (SAFE HTTP POST)
+// =================================================================
+void kirimNotifikasiStatusWiFi(String status) {
+  if (WiFi.status() == WL_CONNECTED) {
+    WiFiClient client;
+    HTTPClient http;
+    String url = WEB_SERVER_URL + "/api/v1/heaters/wifi-status";
+    
+    http.begin(client, url);
+    http.addHeader("Content-Type", "application/json");
+    http.setTimeout(3000);
+
+    String jsonPayload = "{\"status\":\"" + status + "\"}";
+    
+    int httpResponseCode = http.POST(jsonPayload);
+    if (httpResponseCode > 0) {
+      Serial.print("[WIFI STATUS] Sukses kirim status: ");
+      Serial.println(status);
+    } else {
+      Serial.print("[WIFI STATUS] Gagal kirim status, Error: ");
+      Serial.println(http.errorToString(httpResponseCode).c_str());
+    }
+    http.end();
+  }
 }

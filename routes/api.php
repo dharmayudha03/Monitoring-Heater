@@ -11,5 +11,6 @@ Route::prefix('v1')->group(function () {
     Route::get('/heaters/konfigurasi-sistem', [HeaterController::class, 'getSystemConfig']);
     Route::get('/heaters/{heater_code}', [HeaterController::class, 'detail']);
     Route::post('/heaters/bulk', [HeaterController::class, 'bulkStore']);
+    Route::post('/heaters/wifi-status', [HeaterController::class, 'wifiStatus']);
     Route::post('/heater', [HeaterController::class, 'store']);
 });
