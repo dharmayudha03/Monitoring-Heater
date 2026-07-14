@@ -36,6 +36,9 @@ class Heater extends Model
             'current' => $this->last_current,
             'status' => $this->last_status,
             'received_at' => $this->last_received_at ? $this->last_received_at->toIso8601String() : null,
+            'received_at_formatted' => $this->last_received_at ? $this->last_received_at->format('d-m-Y H:i:s') : null,
+            'time_only' => $this->last_received_at ? $this->last_received_at->format('H:i:s') : null,
+            'date_only' => $this->last_received_at ? $this->last_received_at->translatedFormat('d F Y') : null,
         ];
     }
 

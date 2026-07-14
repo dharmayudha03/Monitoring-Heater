@@ -50,10 +50,8 @@ function updateSummary(data) {
             else if (h.latest_log.status === "DANGER") danger++;
 
             if (lastUpdateTime === "-") {
-                const dateObj = new Date(h.latest_log.received_at);
-                const optionsDate = { day: '2-digit', month: 'long', year: 'numeric' };
-                lastUpdateDate = dateObj.toLocaleDateString('id-ID', optionsDate);
-                lastUpdateTime = dateObj.toTimeString().split(' ')[0];
+                lastUpdateDate = h.latest_log.date_only || "-";
+                lastUpdateTime = h.latest_log.time_only || "-";
             }
         }
     });
@@ -128,12 +126,7 @@ function renderTablePage(page) {
                 else if (log.status === "WARNING") badge = "warning";
                 else if (log.status === "DANGER") badge = "danger";
 
-                const dateObj = new Date(log.received_at);
-                const d = ("0" + dateObj.getDate()).slice(-2);
-                const m = ("0" + (dateObj.getMonth() + 1)).slice(-2);
-                const y = dateObj.getFullYear();
-                const time = dateObj.toTimeString().split(' ')[0];
-                timeStr = `${d}-${m}-${y} ${time}`;
+                timeStr = log.received_at_formatted || "-";
             }
 
             tbody.innerHTML += `
@@ -553,9 +546,8 @@ function updateFactoryFloorMap(data) {
         else if (status === "OFFLINE") offlineCount++;
         else if (status === "NORMAL") normalCount++;
 
-        if (log && log.received_at) {
-            const dateObj = new Date(log.received_at);
-            latestTime = dateObj.toTimeString().split(' ')[0];
+        if (log && log.time_only) {
+            latestTime = log.time_only;
         }
 
         let itemClass = "";

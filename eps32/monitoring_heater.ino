@@ -181,14 +181,14 @@ void loop() {
   }
 
   // --- C. SYNC CONFIGURATION FROM LARAVEL SERVER (INTERVAL BAWAAN) ---
-  if (currentMillis - lastFetchMultiplierTime >= fetchMultiplierInterval) {
+  if (lastFetchMultiplierTime == 0 || (currentMillis - lastFetchMultiplierTime >= fetchMultiplierInterval)) {
     lastFetchMultiplierTime = currentMillis;
     ambilKonfigurasiSistem();
   }
 
   // --- D. SIKLUS EVALUASI & PENGIRIMAN DATA LIVE BULK (TIAP 5 MENIT) ---
   // Blok ini HANYA dieksekusi saat interval 5 menit (executionInterval) terpenuhi
-  if (currentMillis - lastExecutionTime >= executionInterval) {
+  if (lastExecutionTime == 0 || (currentMillis - lastExecutionTime >= executionInterval)) {
     lastExecutionTime = currentMillis;
 
     Serial.println(F("\n================================================="));
