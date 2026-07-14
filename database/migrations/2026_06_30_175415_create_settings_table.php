@@ -25,9 +25,9 @@ return new class extends Migration {
             $table->decimal('m_ct5', 8, 3)->default(3.199);
             $table->decimal('m_ct6', 8, 3)->default(2.989);
 
-            // Baseline Nominal (Default 10.939 A)
-            $table->decimal('upper_baseline', 8, 3)->default(10.939);
-            $table->decimal('lower_baseline', 8, 3)->default(10.939);
+            // Baseline Nominal (Default 13.000 A)
+            $table->decimal('upper_baseline', 8, 3)->default(13.000);
+            $table->decimal('lower_baseline', 8, 3)->default(13.000);
 
             $table->boolean('telegram_enabled')->default(true);
             $table->integer('sampling_interval')->default(5);

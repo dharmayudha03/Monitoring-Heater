@@ -44,8 +44,8 @@ class HeaterService
             'm_ct4' => 3.171,
             'm_ct5' => 3.199,
             'm_ct6' => 2.989,
-            'upper_baseline' => 10.939,
-            'lower_baseline' => 10.939,
+            'upper_baseline' => 13.00,
+            'lower_baseline' => 13.00,
             'telegram_enabled' => true,
             'sampling_interval' => 5
         ]);
