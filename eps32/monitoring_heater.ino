@@ -134,12 +134,23 @@ void setup() {
     text-align: center;
   }
   h1 {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 800;
     margin-bottom: 20px;
     color: #ef4444;
     letter-spacing: -0.5px;
     text-transform: uppercase;
+  }
+  h1::before {
+    content: "";
+    display: block;
+    width: 140px;
+    height: 84px;
+    margin: 0 auto 15px auto;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60"><polygon points="50,1 99,30 50,59 1,30" fill="none" stroke="%23dc2626" stroke-width="3.5"/><polygon points="50,6 91,30 50,54 9,30" fill="none" stroke="%23dc2626" stroke-width="3.5"/><polygon points="21,20 79,20 92,30 79,40 21,40 8,30" fill="%23ffffff" stroke="%23dc2626" stroke-width="2.5"/><text x="51" y="37" font-family="Impact, Arial Black, sans-serif" font-weight="900" font-size="14" fill="%23dc2626" text-anchor="middle" letter-spacing="4">IRC</text></svg>');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
   }
   h3 {
     font-size: 13px;
