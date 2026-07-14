@@ -25,7 +25,6 @@ float lower_baseline = 10.939;
 // =================================================================
 // 2. KONFIGURASI SENSOR & VARIABEL GLOBAL MULTIPLIER
 // =================================================================
-const bool DEMO_MODE = false;
 const double SENSOR_RATIO     = 30; // 30A / 1V (rasio SCT-013-030)
 const int TOTAL_SENSOR = 6;
 const int SENSOR_PINS[TOTAL_SENSOR] = {32, 33, 34, 35, 36, 39};
@@ -58,7 +57,6 @@ bool sedangMencobaKoneksi = false;
 
 // Deklarasi Prototip Fungsi
 double bacaIRMSInternalADC(int pin, int sensorIndex, bool showDebug);
-double bacaIRMS_Demo(int sensorIndex);
 void kirimKeLaravelBulk(double arusHasil[]);
 void ambilKonfigurasiSistem();
 
@@ -164,13 +162,8 @@ void loop() {
       }
 
       if (kontaktorAktif) {
-        double arusSeketika = 0.0;
-        if (DEMO_MODE) {
-          arusSeketika = bacaIRMS_Demo(i);
-        } else {
-          // Set 'false' agar log serial tidak penuh karena dibaca tiap 5 detik
-          arusSeketika = bacaIRMSInternalADC(SENSOR_PINS[i], i, false); 
-        }
+        // Set 'false' agar log serial tidak penuh karena dibaca tiap 5 detik
+        double arusSeketika = bacaIRMSInternalADC(SENSOR_PINS[i], i, false); 
         
         // Proteksi noise induksi panel: Hanya catat jika arus riil terdeteksi > 0.5 A
         if (arusSeketika > 0.5) {
@@ -325,12 +318,4 @@ double bacaIRMSInternalADC(int pin, int sensorIndex, bool showDebug) {
   }
 
   return irms;
-}
-
-// =================================================================
-// 8. DATA DUMMY DEMO MODE
-// =================================================================
-double bacaIRMS_Demo(int sensorIndex) {
-  double baseValues[6] = {10.94, 10.90, 10.95, 10.94, 10.89, 10.92};
-  return baseValues[sensorIndex] + ((double)random(-10, 10) / 100.0);
 }
