@@ -1,12 +1,13 @@
 /**
  * TUNGYU THERMOFORMING HEATER PREDICTIVE MAINTENANCE - ESP32 FIRMWARE
- * Version: v12.0_POSTGRES_LOCAL (DIRECT LOCAL LARAVEL API - NO FIREBASE)
+ * Version: v12.4_POSTGRES_LOCAL_INDEPENDENT_CONTACTOR_SYNC (Merged into monitoring_heater.ino)
  * -----------------------------------------------------------------
- * Riwayat singkat:
- * - v12.0_POSTGRES_LOCAL : Hubungkan ESP32 langsung ke API web Laravel lokal (PostgreSQL).
- *                          Bypass Firebase sepenuhnya untuk ketersambungan independen.
+ * Fitur Utama v12.4:
+ * 1. Integrasi langsung ke Aux Contact NO Kontaktor 1 (Pin 22) & Kontaktor 2 (Pin 23).
+ * 2. Logika LOW = Kontaktor ON (Real-time update), HIGH = Kontaktor OFF (Lock/Hold last value).
+ * 3. Fitur Peak-Hold Pintar mempermudah kalibrasi multiplier saat heater mati-nyala (cycling).
+ * 4. Hapus total bug auto-reset Wi-Fi akibat noise elektromagnetik panel.
  * -----------------------------------------------------------------
- * PENTING: Ganti URL WEB_SERVER_URL di bawah sesuai IP local komputer server XAMPP Anda.
  */
 
 #include <WiFi.h>
@@ -17,10 +18,7 @@
 // =================================================================
 // 1. KONFIGURASI WEB SERVER LARAVEL API
 // =================================================================
-// Contoh IP XAMPP Server lokal Anda (Ubah ke IP komputer server Anda, atau gunakan domain ngrok/serveo)
-const String WEB_SERVER_URL = "http://192.168.11.107/heater-monitoring-system"; 
-
-// Baseline acuan untuk fungsi Smart Logging (Diupdate otomatis dari database Laravel)
+const String WEB_SERVER_URL = "http://192.168.11.107/heater-monitoring-system";
 float upper_baseline = 10.939; 
 float lower_baseline = 10.939;
 
@@ -38,18 +36,25 @@ const String zonaNames[TOTAL_SENSOR]  = {
   "Lower Mold RS", "Lower Mold ST", "Lower Mold TR"
 };
 
-// Variabel Penampung Nilai Multiplier Jarak Jauh (Default Awal, bisa dikalibrasi via Web Settings)
 double remoteMultiplier[TOTAL_SENSOR] = {2.681, 2.480, 3.013, 3.171, 3.199, 2.989};
 
-// Manajemen Waktu Siklus (Pembacaan & Logging)
+// =================================================================
+// TIMING CONTROL (BAGIAN GLOBAL)
+// =================================================================
 unsigned long lastExecutionTime = 0;
-const unsigned long executionInterval = 5000; // Pembacaan data sensor tiap 5 detik
+const unsigned long executionInterval = 300000; // Kirim ke Laravel tiap 5 menit (300000 ms)
+
+unsigned long lastSamplingTime = 0;
+const unsigned long samplingInterval = 5000;    // Baca sensor & pantau kontaktor tiap 5 detik (5000 ms)
+
 
 unsigned long lastFetchMultiplierTime = 0;
-const unsigned long fetchMultiplierInterval = 10000; // Sinkronisasi otomatis kalibrasi dari Laravel database tiap 10 detik
+const unsigned long fetchMultiplierInterval = 60000; // Dinaikkan ke 1 menit agar meringankan beban HTTP
 
 unsigned long lastWiFiCheck = 0;
 const unsigned long wifiCheckInterval = 30000; // Cek status Wi-Fi tiap 30 detik
+bool sedangMencobaKoneksi = false;
+
 
 // Deklarasi Prototip Fungsi
 double bacaIRMSInternalADC(int pin, int sensorIndex, bool showDebug);
@@ -58,17 +63,21 @@ void kirimKeLaravelBulk(double arusHasil[]);
 void ambilKonfigurasiSistem();
 
 // =================================================================
-// VARIABLE UNTUK INTERLOCK REKAYASA GPIO 22
+// VARIABLE UNTUK INTERLOCK REKAYASA KONTAKTOR (PADA BAGIAN GLOBAL)
 // =================================================================
-const int PIN_TOMBOL_MODE = 22; // GPIO 22 sebagai input tombol
-bool sistemAktif = true;            // Status awal sistem (Default Jalan)
-int statusTombolTerakhir = HIGH; // Menggunakan PULLUP (HIGH berarti belum ditekan)
+const int PIN_KONTAKTOR_1 = 22; // Menangani CT1, CT2, CT3 (Upper Mold)
+const int PIN_KONTAKTOR_2 = 23; // Menangani CT4, CT5, CT6 (Lower Mold)
+
+// Menyimpan nilai arus aktif terakhir untuk kebutuhan kalibrasi saat heater OFF
+double arusTerakhir[TOTAL_SENSOR] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
+// Debounce filter fisik untuk menghindari noise/getaran kontaktor saat berpindah posisi
 unsigned long waktuDebounceTerakhir = 0;
-const unsigned long JEDA_DEBOUNCE = 50; // 50 milidetik untuk kestabilan tombol
+const unsigned long JEDA_DEBOUNCE = 100; // Dinaikkan ke 100ms agar lebih kebal noise panel
 
 // Variable global untuk Smart Logging
 unsigned long waktuLogTerakhir = 0;
-const unsigned long INTERVAL_LOG_RUTIN = 3600000; // 1 Jam dalam milidetik
+const unsigned long INTERVAL_LOG_RUTIN = 3600000; 
 
 String statusTerakhirUpper = "NORMAL";
 String statusTerakhirLower = "NORMAL";
@@ -82,20 +91,19 @@ void setup() {
 
   Serial.println(F("\n\n=================================================="));
   Serial.println(F("   TUNGYU HEATER PREDICTIVE MAINTENANCE            "));
-  Serial.println(F("   Firmware v12.0 - Direct Postgres (Laravel API)  "));
+  Serial.println(F("   Firmware v12.4 - Merged into monitoring_heater  "));
   Serial.println(F("=================================================="));
 
-  pinMode(PIN_TOMBOL_MODE, INPUT_PULLUP);
+  // Konfigurasi Input Interlock Kontaktor
+  pinMode(PIN_KONTAKTOR_1, INPUT_PULLUP);
+  pinMode(PIN_KONTAKTOR_2, INPUT_PULLUP);
 
   // -----------------------------------------------------------------
   // ORKESTRASI SMART WIFIMANAGER PORTAL CONFIGURATION
   // -----------------------------------------------------------------
   WiFiManager wm;
-  
-  // Batasi waktu tunggu portal 3 menit (180 detik). 
-  wm.setConfigPortalTimeout(180); 
+  wm.setConfigPortalTimeout(180); // Batasi portal 3 menit
 
-  // Jika Wi-Fi pabrik putus/ganti, ESP32 otomatis memancarkan Wi-Fi AP mandiri
   Serial.println("[WIFI] Memulai autoconnect / menyalakan AP Portal...");
   if (!wm.autoConnect("Tungyu-Heater-IoT")) {
     Serial.println(">>> [WIFI EROR] Gagal konek & portal timeout. Merestart ESP32...");
@@ -103,118 +111,127 @@ void setup() {
     ESP.restart();
   }
 
-  // Jika lolos baris ini, berarti sukses terkoneksi ke jaringan Wi-Fi
   Serial.println("\n[WIFI] Sukses Terhubung! IP Perangkat: " + WiFi.localIP().toString());
-
   analogReadResolution(12);
   ambilKonfigurasiSistem();
 
   Serial.println("[STATUS] Setup selesai. Memulai pemantauan...\n");
 }
 
+
 // =================================================================
-// 4. LOOP UTAMA
+// 4. LOOP UTAMA (VERSI v12.5 - FAST SAMPLING & 5-MINUTES TRANSMISSION)
 // =================================================================
 void loop() {
   unsigned long currentMillis = millis();
 
-  // --- A. KONTROL PENGECEKAN KONEKSI WI-FI SECARA BERKALA (NON-BLOCKING) ---
+  // --- A. KONTROL PENGECEKAN KONEKSI WI-FI (NON-BLOCKING & ANTI-LAG) ---
   if (currentMillis - lastWiFiCheck >= wifiCheckInterval) {
     lastWiFiCheck = currentMillis;
+    
     if (WiFi.status() != WL_CONNECTED) {
-      Serial.println("[WIFI WARN] Koneksi terputus! Mencoba menyambung kembali...");
-      WiFi.disconnect();
-      WiFi.reconnect();
-    }
-  }
-  
-  // --- B. ENGINE PEMBACAAN TOMBOL SAKELAR (GPIO 22) - DUAL FUNCTION (SHORT & LONG PRESS) ---
-  int bacaTombol = digitalRead(PIN_TOMBOL_MODE);
-  static unsigned long waktuTekanTombol = 0;
-  static bool tombolSedangDitekan = false;
-
-  if (bacaTombol == LOW) {
-    if (!tombolSedangDitekan) {
-      waktuTekanTombol = currentMillis;
-      tombolSedangDitekan = true;
-    } else {
-      // Jika ditekan lama (5 detik), hapus setelan Wi-Fi dan restart untuk memicu portal
-      if (currentMillis - waktuTekanTombol >= 5000) {
-        Serial.println(F("\n>>> [WIFI RESET] Tombol ditekan 5 detik! Menghapus setelan Wi-Fi dan restart..."));
-        WiFiManager wm;
-        wm.resetSettings();
-        delay(1000);
-        ESP.restart();
-      }
-    }
-  } else { // HIGH (Dilepas)
-    if (tombolSedangDitekan) {
-      unsigned long lamaDitekan = currentMillis - waktuTekanTombol;
-      tombolSedangDitekan = false;
+      Serial.println(F("[WIFI WARN] Koneksi terputus!"));
       
-      // Jika ditekan singkat (di bawah 5 detik dan di atas jeda debounce)
-      if (lamaDitekan >= JEDA_DEBOUNCE && lamaDitekan < 5000) {
-        sistemAktif = !sistemAktif; // Toggle status ON <-> OFF
-        Serial.print(">>> [MODE SWITCH] Status Sistem Berubah! Aktif = ");
-        Serial.println(sistemAktif ? "YES" : "NO");
+      if (!sedangMencobaKoneksi) {
+        Serial.println(F("[WIFI] Mencoba menyambung kembali di latar belakang..."));
+        sedangMencobaKoneksi = true;
+        WiFi.begin(); 
+      }
+    } else {
+      if (sedangMencobaKoneksi) {
+        Serial.println(F("[WIFI] Terhubung Kembali dengan Sukses!"));
+        sedangMencobaKoneksi = false;
       }
     }
   }
 
-  // --- C. INTERLOCK FILTER: BYPASS JIKA MODE MAINTENANCE ---
-  if (!sistemAktif) {
-    delay(100);
-    return; // Kembalikan eksekusi ke atas loop
+  // --- B. SIKLUS PEMBACAAN SENSOR & MONITORING KONTAKTOR (TIAP 5 DETIK) ---
+  // Bagian ini berjalan independen dari waktu pengiriman data ke Laravel API
+  if (currentMillis - lastSamplingTime >= samplingInterval) {
+    lastSamplingTime = currentMillis;
+
+    int statusK1 = digitalRead(PIN_KONTAKTOR_1); // LOW = Kontaktor 1 AKTIF (ON)
+    int statusK2 = digitalRead(PIN_KONTAKTOR_2); // LOW = Kontaktor 2 AKTIF (ON)
+
+    for (int i = 0; i < TOTAL_SENSOR; i++) {
+      bool kontaktorAktif = false;
+
+      // Tentukan kelompok sensor dikontrol oleh kontaktor mana
+      if (i < 3) {
+        kontaktorAktif = (statusK1 == LOW); // CT1, CT2, CT3 dipantau K1
+      } else {
+        kontaktorAktif = (statusK2 == LOW); // CT4, CT5, CT6 dipantau K2
+      }
+
+      if (kontaktorAktif) {
+        double arusSeketika = 0.0;
+        if (DEMO_MODE) {
+          arusSeketika = bacaIRMS_Demo(i);
+        } else {
+          // Set 'false' agar log serial tidak penuh karena dibaca tiap 5 detik
+          arusSeketika = bacaIRMSInternalADC(SENSOR_PINS[i], i, false); 
+        }
+        
+        // Proteksi noise induksi panel: Hanya catat jika arus riil terdeteksi > 0.5 A
+        if (arusSeketika > 0.5) {
+          arusTerakhir[i] = arusSeketika; // Kunci & amankan nilai aktif terbaru ke memori RAM
+        }
+      }
+    }
   }
 
-  // --- D. SYNC CONFIGURATION FROM LARAVEL SERVER ---
+  // --- C. SYNC CONFIGURATION FROM LARAVEL SERVER (INTERVAL BAWAAN) ---
   if (currentMillis - lastFetchMultiplierTime >= fetchMultiplierInterval) {
     lastFetchMultiplierTime = currentMillis;
     ambilKonfigurasiSistem();
   }
 
-  if (lastExecutionTime != 0 && (currentMillis - lastExecutionTime < executionInterval)) {
-    return;
-  }
-  lastExecutionTime = currentMillis;
+  // --- D. SIKLUS EVALUASI & PENGIRIMAN DATA LIVE BULK (TIAP 5 MENIT) ---
+  // Blok ini HANYA dieksekusi saat interval 5 menit (executionInterval) terpenuhi
+  if (currentMillis - lastExecutionTime >= executionInterval) {
+    lastExecutionTime = currentMillis;
 
-  Serial.println("\n--- Memulai Siklus Pembacaan & Pengiriman Data ---");
-  double arus[TOTAL_SENSOR];
+    Serial.println(F("\n================================================="));
+    Serial.println(F("[BATCH SEND] Jadwal 5 Menit Tercapai! Mengemas Data..."));
+    Serial.println(F("================================================="));
 
-  for (int i = 0; i < TOTAL_SENSOR; i++) {
-    if (DEMO_MODE) {
-      arus[i] = bacaIRMS_Demo(i);
-    } else {
-      arus[i] = bacaIRMSInternalADC(SENSOR_PINS[i], i, true);
+    // Siapkan array temporer khusus untuk dikirimkan ke fungsi API bulk Laravel
+    double arusKirim[TOTAL_SENSOR];
+
+    for (int i = 0; i < TOTAL_SENSOR; i++) {
+      // Ambil data dari laci memori 'arusTerakhir' yang selalu diperbarui oleh roda sampling 5 detik
+      arusKirim[i] = arusTerakhir[i]; 
+      
+      Serial.print("  -> " + sensorIDs[i] + " [" + zonaNames[i] + "]: ");
+      Serial.print(String(arusKirim[i], 3));
+      Serial.println(arusKirim[i] > 0.0 ? " A [DATA BEBAN]" : " A [OFF / BELUM ADA DATA]");
     }
-    Serial.println("[MONITOR] " + sensorIDs[i] + " [" + zonaNames[i] + "]: " + String(arus[i], 3) + " A");
-    delay(50); 
+    
+    // Mengirim array hasil penangkapan sampling terbaik ke database PostgreSQL lokal Anda
+    kirimKeLaravelBulk(arusKirim);
+    Serial.println(F("=================================================\n"));
   }
-  
-  // Kirim data langsung ke Laravel API
-  kirimKeLaravelBulk(arus);
-
-  Serial.println("--- Siklus Selesai ---");
 }
 
 // =================================================================
-// 5. FUNGSI PENGIRIMAN DATA LIVE BULK KE LARAVEL POSTGRES (HTTP POST)
+// 5. PENGIRIMAN DATA LIVE BULK KE LARAVEL POSTGRES (SAFE HTTP POST)
 // =================================================================
 void kirimKeLaravelBulk(double arusHasil[]) {
   if (WiFi.status() == WL_CONNECTED) {
+    WiFiClient client; // SOLUSI: Objek client ditambahkan untuk mencegah crash memori
     HTTPClient http;
     String url = WEB_SERVER_URL + "/api/v1/heaters/bulk";
     
-    http.begin(url);
+    http.begin(client, url); // SOLUSI: Memulai koneksi dengan client
     http.addHeader("Content-Type", "application/json");
-    
-    // Construct bulk JSON payload matching Laravel API validator
-    String jsonPayload = "{\"logs\":[";
+    http.setTimeout(3000);   // SOLUSI: Batasi timeout maksimal 3 detik agar Watchdog tidak memicu reset
+
+    // Optimasi payload pembentukan String
+    String jsonPayload;
+    jsonPayload.reserve(300); // Alokasikan memori awal agar tidak terjadi fragmentasi RAM
+    jsonPayload = "{\"logs\":[";
     for (int i = 0; i < TOTAL_SENSOR; i++) {
-      jsonPayload += "{";
-      jsonPayload += "\"heater_code\":\"" + sensorIDs[i] + "\",";
-      jsonPayload += "\"current\":" + String(arusHasil[i], 3);
-      jsonPayload += "}";
+      jsonPayload += "{\"heater_code\":\"" + sensorIDs[i] + "\",\"current\":" + String(arusHasil[i], 3) + "}";
       if (i < TOTAL_SENSOR - 1) jsonPayload += ",";
     }
     jsonPayload += "]}";
@@ -223,8 +240,6 @@ void kirimKeLaravelBulk(double arusHasil[]) {
     if (httpResponseCode > 0) {
       Serial.print("[LARAVEL API] Sukses Kirim Data Bulk! Code: ");
       Serial.println(httpResponseCode);
-      String response = http.getString();
-      Serial.println(response);
     } else {
       Serial.print("[LARAVEL API] Gagal Kirim Data Bulk, Error: ");
       Serial.println(http.errorToString(httpResponseCode).c_str());
@@ -234,23 +249,24 @@ void kirimKeLaravelBulk(double arusHasil[]) {
 }
 
 // =================================================================
-// 6. SINKRONISASI KONFIGURASI KALIBRASI DARI LARAVEL (HTTP GET)
+// 6. SINKRONISASI KONFIGURASI KALIBRASI DARI LARAVEL (SAFE HTTP GET)
 // =================================================================
 void ambilKonfigurasiSistem() {
   if (WiFi.status() == WL_CONNECTED) {
+    WiFiClient client; // SOLUSI: Objek client ditambahkan untuk mencegah crash memori
     HTTPClient http;
     String url = WEB_SERVER_URL + "/api/v1/heaters/konfigurasi-sistem";
 
-    http.begin(url);
+    http.begin(client, url); // SOLUSI: Memulai koneksi dengan client
+    http.setTimeout(3000);   // SOLUSI: Batasi timeout maksimal 3 detik agar Watchdog tidak memicu reset
+    
     int httpResponseCode = http.GET();
-
     if (httpResponseCode == 200) {
       String payload = http.getString();
       JsonDocument doc;
       DeserializationError error = deserializeJson(doc, payload);
 
       if (!error) {
-        // Parse Nilai Multiplier Kalibrasi dari database Postgres
         if (doc.containsKey("m_ct1")) remoteMultiplier[0] = doc["m_ct1"].as<double>();
         if (doc.containsKey("m_ct2")) remoteMultiplier[1] = doc["m_ct2"].as<double>();
         if (doc.containsKey("m_ct3")) remoteMultiplier[2] = doc["m_ct3"].as<double>();
@@ -258,7 +274,6 @@ void ambilKonfigurasiSistem() {
         if (doc.containsKey("m_ct5")) remoteMultiplier[4] = doc["m_ct5"].as<double>();
         if (doc.containsKey("m_ct6")) remoteMultiplier[5] = doc["m_ct6"].as<double>();
 
-        // Parse Nilai Baseline Adaptif
         if (doc.containsKey("upper_baseline")) upper_baseline = doc["upper_baseline"].as<float>();
         if (doc.containsKey("lower_baseline")) lower_baseline = doc["lower_baseline"].as<float>();
 
