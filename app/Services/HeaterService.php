@@ -49,29 +49,16 @@ class HeaterService
             $status = 'DANGER';
         }
 
-        // Tentukan apakah kita perlu mencatat log histori ke database.
-        // Aturannya:
-        // 1. Jika status berubah (misal NORMAL ke DANGER, atau NORMAL ke OFFLINE)
-        // 2. ATAU jika log terakhir sudah lebih dari 15 menit yang lalu (log rutin 15 menit)
-        $shouldLog = false;
-        if ($status !== $previousStatus) {
-            $shouldLog = true;
-        } elseif (!$lastLogTime || now()->diffInMinutes($lastLogTime) >= 15) {
-            $shouldLog = true;
-        }
-
-        $log = null;
-        if ($shouldLog) {
-            $log = HeaterLog::create([
-                'heater_id' => $heater->id,
-                'adc_value' => $data['adc_value'] ?? null,
-                'current' => $data['current'],
-                'voltage' => $data['voltage'] ?? null,
-                'temperature' => $data['temperature'] ?? null,
-                'status' => $status,
-                'received_at' => now(),
-            ]);
-        }
+        // Selalu catat log histori ke database untuk merekam fluktuasi arus secara detail
+        $log = HeaterLog::create([
+            'heater_id' => $heater->id,
+            'adc_value' => $data['adc_value'] ?? null,
+            'current' => $data['current'],
+            'voltage' => $data['voltage'] ?? null,
+            'temperature' => $data['temperature'] ?? null,
+            'status' => $status,
+            'received_at' => now(),
+        ]);
 
         // Selalu perbarui status real-time terakhir pada tabel heaters
         $heater->update([
