@@ -104,6 +104,129 @@ void setup() {
   wm.setConfigPortalTimeout(180); // Batasi portal 3 menit
   wm.setConnectTimeout(15);       // Batasi pencarian Wi-Fi tersimpan maks 15 detik sebelum memancarkan hotspot AP
 
+  // Suntikkan CSS Kustom untuk Tampilan Portal Premium Modern (Glassmorphism & Dark Mode)
+  wm.setCustomHeadElement(R"=====(
+<style>
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #0f172a;
+    color: #f1f5f9;
+    margin: 0;
+    padding: 20px 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+  }
+  div, form {
+    box-sizing: border-box;
+  }
+  .wrap {
+    background: rgba(30, 41, 59, 0.75);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 35px 25px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: #ef4444;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+  }
+  h3 {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 25px;
+    font-weight: 500;
+  }
+  a {
+    color: #ef4444;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  .btn, button, input[type='submit'], input[type='button'] {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white !important;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    width: 100%;
+    cursor: pointer;
+    margin: 10px 0;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+    display: inline-block;
+  }
+  .btn:hover, button:hover, input[type='submit']:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+    background: linear-gradient(135deg, #f87171, #ef4444);
+  }
+  input[type='text'], input[type='password'], select {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 14px;
+    color: white;
+    width: 100%;
+    margin-bottom: 16px;
+    font-size: 14px;
+    transition: all 0.25s ease;
+  }
+  input[type='text']:focus, input[type='password']:focus {
+    border-color: #ef4444;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+    background: rgba(15, 23, 42, 0.9);
+  }
+  .msg {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 12px;
+    padding: 12px;
+    color: #f87171;
+    font-size: 13px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  /* WiFiManager specific list */
+  div.q {
+    margin: 20px 0;
+    text-align: left;
+  }
+  div.q a {
+    display: block;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    color: #e2e8f0;
+    transition: all 0.2s ease;
+  }
+  div.q a:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.15);
+    text-decoration: none;
+    padding-left: 20px;
+    color: #ef4444;
+  }
+</style>
+)=====");
+
   Serial.println("[WIFI] Memulai autoconnect / menyalakan AP Portal...");
   if (!wm.autoConnect("Tungyu-Heater-IoT")) {
     Serial.println(">>> [WIFI EROR] Gagal konek & portal timeout. Merestart ESP32...");
