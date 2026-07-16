@@ -28,7 +28,7 @@ class SendDangerReminders extends Command
         }
 
         $settings = Setting::first() ?: Setting::create([
-            'normal_min' => 9.00,
+            'normal_min' => 11.00,
             'warning_min' => 7.60,
             'm_ct1' => 1.425,
             'm_ct2' => 1.467,
