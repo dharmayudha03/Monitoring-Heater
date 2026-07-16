@@ -113,7 +113,7 @@
                                             style="font-size: 11px;">
                                             <span class="text-muted">Update Terakhir:</span>
                                             <span class="font-weight-600 text-dark">
-                                                {{ $log ? $log->received_at->format('H:i:s') : '-' }}
+                                                {{ $log ? $log->time_only : '-' }}
                                             </span>
                                         </div>
 
