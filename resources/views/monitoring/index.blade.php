@@ -104,7 +104,7 @@
                                                 style="font-size:12px;">A</small>
                                         </strong>
                                         <div class="mt-1">
-                                            <small class="text-muted" style="font-size: 10px;">Nominal: 10.93 A</small>
+                                            <small class="text-muted" style="font-size: 10px;">Nominal: 11.00 A</small>
                                         </div>
                                     </div>
 
@@ -292,7 +292,7 @@
                             <!-- Auto Calibration input -->
                             <div class="form-group mb-2" id="group_auto_calibrate">
                                 <label class="font-weight-bold text-danger small mb-1">Hasil Pembacaan Tang Ampere Aktual (Ampere)</label>
-                                <input type="number" step="0.01" name="actual_current" id="actual_current" class="form-control form-control-sm rounded-pill border-danger" placeholder="Contoh: 10.93">
+                                <input type="number" step="0.01" name="actual_current" id="actual_current" class="form-control form-control-sm rounded-pill border-danger" placeholder="Contoh: 11.00">
                                 <small class="text-muted d-block mt-1" style="font-size: 11px; line-height: 1.2;">Sistem akan menghitung otomatis faktor pengali baru agar nilai arus di web sesuai dengan tang ampere Anda.</small>
                             </div>
 

@@ -79,7 +79,7 @@
                                         <div class="col-sm-8">
                                             <input type="number" step="0.001" name="upper_baseline" class="form-control rounded-pill" 
                                                 value="{{ old('upper_baseline', $sysSetting->upper_baseline) }}" required>
-                                            <small class="text-muted d-block mt-1">Arus nominal standar untuk Cetakan Atas (Default: 10.939 A)</small>
+                                            <small class="text-muted d-block mt-1">Arus nominal standar untuk Cetakan Atas (Default: 11.000 A)</small>
                                         </div>
                                     </div>
 
@@ -88,7 +88,7 @@
                                         <div class="col-sm-8">
                                             <input type="number" step="0.001" name="lower_baseline" class="form-control rounded-pill" 
                                                 value="{{ old('lower_baseline', $sysSetting->lower_baseline) }}" required>
-                                            <small class="text-muted d-block mt-1">Arus nominal standar untuk Cetakan Bawah (Default: 10.939 A)</small>
+                                            <small class="text-muted d-block mt-1">Arus nominal standar untuk Cetakan Bawah (Default: 11.000 A)</small>
                                         </div>
                                     </div>
 
@@ -245,10 +245,10 @@
                             <ul class="pl-0 text-muted small mb-0" style="line-height: 1.6; list-style-type: none;">
                                 <li class="mb-1">🔌 <b>1 Elemen:</b> 1200 W / 380 V = <b>3.15 A</b></li>
                                 <li class="mb-1">🔌 <b>2 Elemen (1 Fasa):</b> 2400 W / 380 V = <b>6.31 A</b></li>
-                                <li class="mb-1">⚡ <b>Sistem Delta RST:</b> (2400 W / 380 V) x &radic;3 = <b>10.93 A</b></li>
+                                <li class="mb-1">⚡ <b>Sistem Delta RST:</b> (2400 W / 380 V) x &radic;3 = <b>10.93 A</b> (Kalibrasi Lapangan: <b>11.00 A</b>)</li>
                             </ul>
                             <p class="text-muted small mt-2 mb-0" style="line-height: 1.3;">
-                                Nilai <b>10.93 A</b> adalah standar pembacaan normal tang ampere fisik Anda di lapangan.
+                                Nilai <b>11.00 A</b> adalah standar pembacaan normal tang ampere fisik Anda di lapangan.
                             </p>
                         </div>
                     </div>
