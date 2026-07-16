@@ -24,8 +24,8 @@ class SettingController extends Controller
                 'm_ct4' => 1.192,
                 'm_ct5' => 1.372,
                 'm_ct6' => 1.157,
-                'upper_baseline' => 13.00,
-                'lower_baseline' => 13.00,
+                'upper_baseline' => 11.00,
+                'lower_baseline' => 11.00,
                 'telegram_enabled' => true,
                 'sampling_interval' => 5
             ]);
@@ -108,8 +108,8 @@ class SettingController extends Controller
             'm_ct4' => 1.192,
             'm_ct5' => 1.372,
             'm_ct6' => 1.157,
-            'upper_baseline' => 13.00,
-            'lower_baseline' => 13.00,
+            'upper_baseline' => 11.00,
+            'lower_baseline' => 11.00,
             'telegram_enabled' => true,
             'sampling_interval' => 5
         ]);

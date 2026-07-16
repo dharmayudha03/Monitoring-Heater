@@ -19,8 +19,8 @@
 // 1. KONFIGURASI WEB SERVER LARAVEL API
 // =================================================================
 const String WEB_SERVER_URL = "http://192.168.11.107/heater-monitoring-system";
-float upper_baseline = 13.00; 
-float lower_baseline = 13.00;
+float upper_baseline = 11.00; 
+float lower_baseline = 11.00;
 
 // =================================================================
 // 2. KONFIGURASI SENSOR & VARIABEL GLOBAL MULTIPLIER
