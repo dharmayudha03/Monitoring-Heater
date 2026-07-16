@@ -118,12 +118,12 @@ class HeaterService
     {
         $range = $request->input('range', 'realtime');
         $shift = $request->input('shift', 'shift1');
-        $month = (int) $request->input('month', now()->month);
-        $year = (int) $request->input('year', now()->year);
+        $month = (int) $request->input('month', now('Asia/Jakarta')->month);
+        $year = (int) $request->input('year', now('Asia/Jakarta')->year);
 
         $heaters = Heater::where('is_active', true)->orderBy('heater_code')->get();
         $datasets = [];
-        $now = now();
+        $now = now('Asia/Jakarta');
 
         if ($range === 'realtime') {
             foreach ($heaters as $heater) {
