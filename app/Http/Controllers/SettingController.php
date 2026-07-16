@@ -145,7 +145,9 @@ class SettingController extends Controller
         // Instantly recalculate the current displayed for immediate UI feedback
         $heater = \App\Models\Heater::where('heater_code', $request->heater_code)->first();
         if ($heater) {
-            $latestLog = $heater->latestLog;
+            $latestLog = \App\Models\HeaterLog::where('heater_id', $heater->id)
+                ->orderBy('received_at', 'desc')
+                ->first();
             if ($latestLog && $oldMultiplier > 0) {
                 $oldCurrent = (float)$latestLog->current;
                 $newCurrent = $oldCurrent * ($newMultiplier / $oldMultiplier);
@@ -161,6 +163,11 @@ class SettingController extends Controller
                 $latestLog->update([
                     'current' => round($newCurrent, 2),
                     'status' => $newStatus,
+                ]);
+
+                $heater->update([
+                    'last_current' => round($newCurrent, 2),
+                    'last_status' => $newStatus,
                 ]);
             }
         }
