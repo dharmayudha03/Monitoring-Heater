@@ -23,6 +23,15 @@ class HeaterLog extends Model
         'received_at' => 'datetime'
     ];
 
+    public function getReceivedAtAttribute($value)
+    {
+        if (!$value) {
+            return null;
+        }
+        $dateStr = $value instanceof \Carbon\Carbon ? $value->format('Y-m-d H:i:s') : (string)$value;
+        return \Carbon\Carbon::parse($dateStr, 'Asia/Jakarta');
+    }
+
     public function heater(): BelongsTo
     {
         return $this->belongsTo(Heater::class);

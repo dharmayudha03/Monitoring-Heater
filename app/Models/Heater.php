@@ -26,6 +26,15 @@ class Heater extends Model
 
     protected $appends = ['latest_log'];
 
+    public function getLastReceivedAtAttribute($value)
+    {
+        if (!$value) {
+            return null;
+        }
+        $dateStr = $value instanceof \Carbon\Carbon ? $value->format('Y-m-d H:i:s') : (string)$value;
+        return \Carbon\Carbon::parse($dateStr, 'Asia/Jakarta');
+    }
+
     public function getLatestLogAttribute()
     {
         if ($this->last_current === null) {
@@ -33,11 +42,6 @@ class Heater extends Model
         }
 
         $localTime = $this->last_received_at;
-        if ($localTime instanceof \Carbon\Carbon) {
-            $localTime = $localTime->setTimezone('Asia/Jakarta');
-        } elseif (is_string($localTime)) {
-            $localTime = \Carbon\Carbon::parse($localTime)->setTimezone('Asia/Jakarta');
-        }
 
         return (object)[
             'current' => $this->last_current,
