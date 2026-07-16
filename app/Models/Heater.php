@@ -32,13 +32,20 @@ class Heater extends Model
             return null;
         }
 
+        $localTime = $this->last_received_at;
+        if ($localTime instanceof \Carbon\Carbon) {
+            $localTime = $localTime->setTimezone('Asia/Jakarta');
+        } elseif (is_string($localTime)) {
+            $localTime = \Carbon\Carbon::parse($localTime)->setTimezone('Asia/Jakarta');
+        }
+
         return (object)[
             'current' => $this->last_current,
             'status' => $this->last_status,
-            'received_at' => $this->last_received_at ? $this->last_received_at->toIso8601String() : null,
-            'received_at_formatted' => $this->last_received_at ? $this->last_received_at->format('d-m-Y H:i:s') : null,
-            'time_only' => $this->last_received_at ? $this->last_received_at->format('H:i:s') : null,
-            'date_only' => $this->last_received_at ? $this->last_received_at->translatedFormat('d F Y') : null,
+            'received_at' => $localTime ? $localTime->toIso8601String() : null,
+            'received_at_formatted' => $localTime ? $localTime->format('d-m-Y H:i:s') : null,
+            'time_only' => $localTime ? $localTime->format('H:i:s') : null,
+            'date_only' => $localTime ? $localTime->translatedFormat('d F Y') : null,
         ];
     }
 

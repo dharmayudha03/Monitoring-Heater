@@ -35,7 +35,7 @@ const String zonaNames[TOTAL_SENSOR]  = {
   "Lower Mold RS", "Lower Mold ST", "Lower Mold TR"
 };
 
-double remoteMultiplier[TOTAL_SENSOR] = {2.681, 2.480, 3.013, 3.171, 3.199, 2.989};
+double remoteMultiplier[TOTAL_SENSOR] = {1.425, 1.467, 1.297, 1.192, 1.372, 1.157};
 
 // =================================================================
 // TIMING CONTROL (BAGIAN GLOBAL)

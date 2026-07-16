@@ -18,12 +18,12 @@ return new class extends Migration {
             $table->decimal('warning_min', 8, 2)->default(7.60); // Warning >= 7.6 A, Danger < 7.6 A
             
             // Konfigurasi Kalibrasi (Multiplier Sensor Arus CT01 - CT06)
-            $table->decimal('m_ct1', 8, 3)->default(2.681);
-            $table->decimal('m_ct2', 8, 3)->default(2.480);
-            $table->decimal('m_ct3', 8, 3)->default(3.013);
-            $table->decimal('m_ct4', 8, 3)->default(3.171);
-            $table->decimal('m_ct5', 8, 3)->default(3.199);
-            $table->decimal('m_ct6', 8, 3)->default(2.989);
+            $table->decimal('m_ct1', 8, 3)->default(1.425);
+            $table->decimal('m_ct2', 8, 3)->default(1.467);
+            $table->decimal('m_ct3', 8, 3)->default(1.297);
+            $table->decimal('m_ct4', 8, 3)->default(1.192);
+            $table->decimal('m_ct5', 8, 3)->default(1.372);
+            $table->decimal('m_ct6', 8, 3)->default(1.157);
 
             // Baseline Nominal (Default 13.000 A)
             $table->decimal('upper_baseline', 8, 3)->default(13.000);

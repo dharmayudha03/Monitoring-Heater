@@ -38,12 +38,12 @@ class HeaterService
         $settings = Setting::first() ?: Setting::create([
             'normal_min' => 9.00,
             'warning_min' => 7.60,
-            'm_ct1' => 2.681,
-            'm_ct2' => 2.480,
-            'm_ct3' => 3.013,
-            'm_ct4' => 3.171,
-            'm_ct5' => 3.199,
-            'm_ct6' => 2.989,
+            'm_ct1' => 1.425,
+            'm_ct2' => 1.467,
+            'm_ct3' => 1.297,
+            'm_ct4' => 1.192,
+            'm_ct5' => 1.372,
+            'm_ct6' => 1.157,
             'upper_baseline' => 13.00,
             'lower_baseline' => 13.00,
             'telegram_enabled' => true,
@@ -69,14 +69,14 @@ class HeaterService
             'voltage' => $data['voltage'] ?? null,
             'temperature' => $data['temperature'] ?? null,
             'status' => $status,
-            'received_at' => now(),
+            'received_at' => now('Asia/Jakarta'),
         ]);
 
         // Selalu perbarui status real-time terakhir pada tabel heaters
         $heater->update([
             'last_current' => $data['current'],
             'last_status' => $status,
-            'last_received_at' => now(),
+            'last_received_at' => now('Asia/Jakarta'),
         ]);
 
         // Trigger Automatic Real-Time Telegram Alert for WARNING or DANGER
