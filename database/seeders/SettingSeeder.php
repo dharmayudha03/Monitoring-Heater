@@ -10,7 +10,7 @@ class SettingSeeder extends Seeder
     public function run(): void
     {
         Setting::create([
-            'normal_min' => 11.00,
+            'normal_min' => 9.00,
             'warning_min' => 7.60,
             'm_ct1' => 1.425,
             'm_ct2' => 1.467,

@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             
             // Ambang Batas Arus (Default Baru Sesuai Hitungan Delta RST)
-            $table->decimal('normal_min', 8, 2)->default(11.00);  // Normal >= 11.0 A
+            $table->decimal('normal_min', 8, 2)->default(9.00);  // Normal >= 9.0 A
             $table->decimal('warning_min', 8, 2)->default(7.60); // Warning >= 7.6 A, Danger < 7.6 A
             
             // Konfigurasi Kalibrasi (Multiplier Sensor Arus CT01 - CT06)

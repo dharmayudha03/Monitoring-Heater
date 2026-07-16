@@ -11,7 +11,7 @@ class MonitoringController extends Controller
     {
         $heaters = Heater::where('is_active', true)->orderBy('heater_code')->get();
         $sysSetting = \App\Models\Setting::first() ?: \App\Models\Setting::create([
-            'normal_min' => 11.00,
+            'normal_min' => 9.00,
             'warning_min' => 7.60,
             'm_ct1' => 1.425,
             'm_ct2' => 1.467,
