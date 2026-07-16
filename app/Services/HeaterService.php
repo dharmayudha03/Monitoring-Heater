@@ -222,9 +222,10 @@ class HeaterService
 
         // Map logs into fixed slots
         foreach ($heaters as $heater) {
-            // Fetch logs for this heater up to endWindow
+            // Fetch logs for this heater within the window
             $logsInWindow = HeaterLog::where('heater_id', $heater->id)
-                ->where('received_at', '<=', $endWindow)
+                ->where('received_at', '>=', $startWindow->format('Y-m-d H:i:s'))
+                ->where('received_at', '<=', $endWindow->format('Y-m-d H:i:s'))
                 ->orderBy('received_at', 'asc')
                 ->get();
 
